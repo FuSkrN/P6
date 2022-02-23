@@ -1,6 +1,6 @@
 # P6
 
-#Docker instructions
+# Docker instructions
 To build the docker container, run the following command:
 >docker build -t p6 .
 
