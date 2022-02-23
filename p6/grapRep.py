@@ -1,11 +1,10 @@
 class state:
-    def __init__(self, label, isStartState: bool):
+    def __init__(self, label):
         self.label = label
         #connections to other states
         self.outgoing = []
         #connections to this state
         self.ingoing = []
-        self.isStartState = isStartState
     
     #add transition from current state to another state
     def addTransition(self, state):
@@ -24,4 +23,9 @@ class transition:
         self.destination = destination
         destination.ingoing.append(origin)
 
-
+def depthFirstSearch(state):
+    if state.isEndpint() == True:
+        return
+    else:
+        for transition in len(state.outgoing):
+            depthFirstSearch(state.outgoing[transition])
