@@ -1,0 +1,10 @@
+{
+    "lightbulb": {
+        "label": "light_bulb",
+        "states": ["on", "off", "broken"],
+        "transitions": [{ "action": "switchOn", "source": "off", "dest": "on" }, 
+                        { "action": "switchOff", "source": "on", "dest": "off" },
+                        { "action": "break", "source": "off", "dest": "broken" },
+                        { "action": "break","source": "on","dest": "broken" }]
+    }
+}
