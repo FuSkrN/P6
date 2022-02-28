@@ -1,4 +1,4 @@
-#Dockerfile for cleanMyData-POC
+#Dockerfile for P6
 
 FROM debian:11.1
 
