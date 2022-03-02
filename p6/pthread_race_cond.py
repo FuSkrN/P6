@@ -22,23 +22,23 @@ def sumNumbers(threadID, numberRange):
     sumArray[threadID % 5] = summedNumber
     return summedNumber
 
-threads = []
+#threads = []
 
-sumArray = [0]*5
+#sumArray = [0]*5
 
-for x in range(1, 100):
-    threads.append(summationThread(x, f"thread-{x}", x,\
-            range((x-1)*1000000+1, x*1000000+1)))
+#for x in range(1, 100):
+#    threads.append(summationThread(x, f"thread-{x}", x,\
+#            range((x-1)*1000000+1, x*1000000+1)))
+#
+#for thread in threads:
+#    thread.start()
 
-for thread in threads:
-    thread.start()
 
+#for thread in threads:
+#    thread.join()
+#
+#for summation in sumArray:
+#    print(f"adding {summation} to n")
+#    n += summation
 
-for thread in threads:
-    thread.join()
-
-for summation in sumArray:
-    print(f"adding {summation} to n")
-    n += summation
-
-print(n)
+#print(n)
