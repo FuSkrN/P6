@@ -11,14 +11,17 @@ class C_Reader:
     def get_scopes(self):
         indentationCount = 0
         scopeName = 'hej'
+        r = []
         for line in self.fileLines:
-            self.get_variables(line, scopeName)
+            result = self.get_variables(line, scopeName)
+            if result != None:
+                r.append(result)
             for symbol in line:
                 if symbol == '{':
                     indentationCount += 1
                 elif symbol == '}':
                     indentationCount -= 1
-            #print(line)
+        print(r)
             #print(indentationCount)
 
     def get_variables(self, line, scope):
@@ -27,13 +30,14 @@ class C_Reader:
         searchResult = re.search(variablePattern, line)
         if searchResult != None:
             #prints the different groups within the regex
-            print(f"group 1: {searchResult.group(1)}")
-            print(f"group 2: {searchResult.group(2)}")
-            print(f"group 3: {searchResult.group(3)}")
-            print(f"group 4: {searchResult.group(4)}")
-            print(f"group 5: {searchResult.group(5)}")
-            print(f"group 6: {searchResult.group(6)}")
-            print("\n")
+            #print(f"group 1: {searchResult.group(1)}")
+            #print(f"group 2: {searchResult.group(2)}")
+            #print(f"group 3: {searchResult.group(3)}")
+            #print(f"group 4: {searchResult.group(4)}")
+            #print(f"group 5: {searchResult.group(5)}")
+            #print(f"group 6: {searchResult.group(6)}")
+            #print("\n")
+            return (scope, searchResult.group(3), searchResult.group(6))
 
 class Python_Reader:
     def __init__(self, fileName):
