@@ -26,6 +26,8 @@ class transition:
         destination.ingoing.append(origin)
 
 def depthFirstSearch(state):
+    #TODO make it print tuples instead
+    print(state.label, state.outgoing)
     state.discovered = True
     #if state is endpoint, it needs to be has been explored
     if state.isEndpint() == True:
