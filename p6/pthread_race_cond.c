@@ -16,7 +16,7 @@ int main(){
     iret1 = pthread_create(&thread1, NULL, sumNumbers, (void*) arg1);
     iret2 = pthread_create(&thread2, NULL, sumNumbers, (void*) arg2);
     
-    for(int x=0; x<10; x++){
+    for(int x = 0; x<10; x++){
         pthread_create(&threads[x], NULL, sumNumbers, (void*) arg1);
     }
 
