@@ -35,9 +35,8 @@ def depthFirstSearch(state):
     else:
         #if it has not, every sub state is recursivly searched through
         for transition in len(state.outgoing):
-            if state.outgoing[transition].discovered or state.outgoing[transition].explored:
-                pass
-            depthFirstSearch(state.outgoing[transition])
+            if !(state.outgoing[transition].discovered or state.outgoing[transition].explored):
+                depthFirstSearch(state.outgoing[transition])
         #after substates has been explored, label state as explored and return
         state.discovered = True
         state.explored = True
