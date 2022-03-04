@@ -21,23 +21,29 @@ class C_Reader:
                     indentationCount += 1
                 elif symbol == '}':
                     indentationCount -= 1
-        print(r)
-            #print(indentationCount)
+        for d in r:
+            pass
+            #print(f"{d}\n")
 
     def get_variables(self, line, scope):
         #regex pattern to detect variable types, names and assignment values
-        variablePattern = re.compile('.*((int|long|pthread_t|void) *\*?([a-zA-Z0-9]+)(\[[0-9]*\])?) *(;|= *([^;]* *);).*')
+        variablePattern = re.compile('^.*(int|long|pthread_t|void) +\*?((([a-zA-Z0-9]+)(\[[0-9]*\])?)*(, ?)?)* *((=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%)? *([^;]* *);).*$')
         searchResult = re.search(variablePattern, line)
         if searchResult != None:
-            #prints the different groups within the regex
-            #print(f"group 1: {searchResult.group(1)}")
-            #print(f"group 2: {searchResult.group(2)}")
-            #print(f"group 3: {searchResult.group(3)}")
-            #print(f"group 4: {searchResult.group(4)}")
-            #print(f"group 5: {searchResult.group(5)}")
-            #print(f"group 6: {searchResult.group(6)}")
-            #print("\n")
-            return (scope, searchResult.group(3), searchResult.group(6))
+            print(f"searchResult: {searchResult.group()}")
+            print(f"group 1: {searchResult.group(1)}")
+            print(f"group 2: {searchResult.group(2)}")
+            print(f"group 3: {searchResult.group(3)}")
+            print(f"group 4: {searchResult.group(4)}")
+            print(f"group 5: {searchResult.group(5)}")
+            print(f"group 6: {searchResult.group(6)}")
+            print(f"group 7: {searchResult.group(7)}")
+            print(f"group 8: {searchResult.group(8)}")
+            print(f"group 9: {searchResult.group(9)}\n\n")
+            #returns the scope name, variable name and assignment value as a 3-tuple
+            return {"scope": scope, 
+                    "name": searchResult.group(3), 
+                    "value": searchResult.group(6)}
 
 class Python_Reader:
     def __init__(self, fileName):
