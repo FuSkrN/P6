@@ -27,8 +27,8 @@ class C_Reader:
 
     def get_variables(self, line, scope):
         #regex pattern to detect variable types, names and assignment values
-        variablePattern = re.compile('^.*(int|long|pthread_t|void) +\*?((([a-zA-Z0-9]+)(\[[0-9]*\])?)*(, ?)?)* *((=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%)? *([^;]* *);).*$')
-        searchResult = re.search(variablePattern, line)
+        declarationPattern = re.compile('^.*(int|long|pthread_t|void) +\*?((([a-zA-Z0-9]+)(\[[0-9]*\])?)*(, ?)?)* *((=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%)? *([^;()]* *);).*$')
+        searchResult = re.search(declarationPattern, line)
         if searchResult != None:
             print(f"searchResult: {searchResult.group()}")
             print(f"group 1: {searchResult.group(1)}")
@@ -42,8 +42,8 @@ class C_Reader:
             print(f"group 9: {searchResult.group(9)}\n\n")
             #returns the scope name, variable name and assignment value as a 3-tuple
             return {"scope": scope, 
-                    "name": searchResult.group(3), 
-                    "value": searchResult.group(6)}
+                    "name": searchResult.group(4), 
+                    "value": searchResult.group(9)}
 
 class Python_Reader:
     def __init__(self, fileName):
