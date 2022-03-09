@@ -7,7 +7,12 @@ class C_Reader:
         self.fileName = fileName
         with open(self.fileName) as file:
                 self.fileLines = file.readlines()
-
+       
+       #regex pattern to detect variable types, names and assignment values
+        self.declarationPattern = re.compile(' *(int|long|pthread_t|void|char) +\*?((([a-zA-Z0-9]+)(\[[0-9]*\])?)*(, ?)?)* *(=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%)? *([^;]* *);$')
+        self.variablePattern = re.compile('^ *((([a-zA-Z0-9]+)(\[[0-9]*\])?)*(, ?)?)* *((=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%) *([^;]* *);).*$')
+        self.prototypePattern = re.compile('^ *(int|long|pthread_t|void|char) +\*?(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\));$')
+  
     def get_scopes(self):
         indentationCount = 0
         scopeName = 'hej'
@@ -27,16 +32,12 @@ class C_Reader:
             #print(f"{d}\n")
 
     def get_variables(self, line, scope):
-        #regex pattern to detect variable types, names and assignment values
-        declarationPattern = re.compile(' *(int|long|pthread_t|void|char) +\*?((([a-zA-Z0-9]+)(\[[0-9]*\])?)*(, ?)?)* *(=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%)? *([^;]* *);$')
-        variablePattern = re.compile('^ *((([a-zA-Z0-9]+)(\[[0-9]*\])?)*(, ?)?)* *((=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%) *([^;]* *);).*$')
-        prototypePattern = re.compile('^ *(int|long|pthread_t|void|char) +\*?(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\));$')
-        searchResult = re.search(declarationPattern, line)
+        searchResult = re.search(self.declarationPattern, line)
         if searchResult == None:
-            searchResult = re.search(variablePattern, line)
+            searchResult = re.search(self.variablePattern, line)
         
         #debugging code, can be deleted
-        if searchResult != None and re.search(prototypePattern, searchResult.group()) == None:
+        if searchResult != None and re.search(self.prototypePattern, searchResult.group()) == None:
             print(f"searchResult: {searchResult.group()}")
             print(f"searchResult 1: {searchResult.group(1)}")
             print(f"searchResult 2: {searchResult.group(2)}")
@@ -48,7 +49,7 @@ class C_Reader:
             print(f"searchResult 8: {searchResult.group(8)}")
 
         #returns the scope name, variable name and assignment value as a 3-tuple
-        if searchResult != None and re.search(prototypePattern, searchResult.group()) == None:
+        if searchResult != None and re.search(self.prototypePattern, searchResult.group()) == None:
             return {"scope": scope, 
                     "name": searchResult.group(4), 
                     "value": searchResult.group(8)}
