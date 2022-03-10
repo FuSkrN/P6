@@ -9,7 +9,7 @@ class C_reader:
 
     def get_ifelse(self, line):
         #regex pattern to match if-else-else if statements; accounts for multiline formatting
-        ifElsePattern = re.compile('^if\s*\((.*?)\)\s*{(.*?)}(\s*(else|else\s+if\s*\((.*?)\))\s*{(.*?)})*$')
+        ifElsePattern = re.compile('^if\s*\((.*?)\)\s*((.|\n)*){(.*?)((.|\n)*)}((.|\n)*)(\s*(else|else\s+if\s*\((.*?)\))\s*{(.*?)})*$')
         searchResult = re.search(ifElsePattern, line, flags=re.MULTILINE)
         if(searchResult != None):
             print(f"searchResult: {searchResult.string}")
