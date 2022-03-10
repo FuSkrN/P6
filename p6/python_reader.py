@@ -6,28 +6,26 @@ class C_Reader:
     def __init__(self, fileName):
         self.fileName = fileName
         with open(self.fileName) as file:
-                self.fileLines = file.readlines()
+                self.file = file.read()
        
        #regex pattern to detect variable types, names and assignment values
-        self.declarationPattern = re.compile(' *(int|long|pthread_t|void|char) +\*?((([a-zA-Z0-9]+)(\[[0-9]*\])?)*(, ?)?)* *(=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%)? *([^;]* *);$')
+        self.declarationPattern = re.compile(' *(int|long|pthread_t|void|char) +\**((([a-zA-Z0-9]+)(\[[0-9]*\])?)*(, ?)?)* *(=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%)? *([^;]* *);$')
         self.variablePattern = re.compile('^ *((([a-zA-Z0-9]+)(\[[0-9]*\])?)*(, ?)?)* *((=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%) *([^;]* *);).*$')
-        self.prototypePattern = re.compile('^ *(int|long|pthread_t|void|char) +\*?(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\));$')
+        self.prototypePattern = re.compile('^ *(int|long|pthread_t|void|char) +\**(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\));$')
+        self.functionPattern = re.compile('^ *(int|long|pthread_t|void) +\**(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\)){((\n?.*)*)}$')
   
     def get_scopes(self):
-        indentationCount = 0
-        scopeName = 'hej'
-        r = []
-        for line in self.fileLines:
+        scopeName = ''
+        results = []
+        print(self.file)
+        kage = re.findall(self.prototypePattern, self.file)
+        print(f"kage: {kage}")
+        for line in self.file:
             result = self.get_variables(line, scopeName)
             if result != None:
                 print(result)
-                r.append(result)
-            for symbol in line:
-                if symbol == '{':
-                    indentationCount += 1
-                elif symbol == '}':
-                    indentationCount -= 1
-        for d in r:
+                results.append(result)
+        for d in results:
             pass
             #print(f"{d}\n")
 
