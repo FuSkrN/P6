@@ -5,12 +5,18 @@ class state:
         self.outgoing = []
         #connections to this state
         self.ingoing = []
-        self.discovered = False
-        self.explored = False
+        self.variables = []
     
     #add transition from current state to another state
     def addTransition(self, state):
         self.outgoing.append(transition(self, state))
+
+    def addVar(self, var: dict):
+        #check if variable already exist in state and remove if yes
+        for v in variables:
+            if v.name == var.name:
+                variables.remove(v)
+        variables.append(var)
 
     #check if the state is an end state
     def isEndpoint(self):
@@ -25,22 +31,4 @@ class transition:
         self.destination = destination
         destination.ingoing.append(origin)
 
-def depthFirstSearch(state):
-    #TODO make it print tuples instead
-    print(state.label, state.outgoing)
-    state.discovered = True
-    #if state is endpoint, it needs to be has been explored
-    if state.isEndpint() == True:
-        state.discovered = True
-        state.explored = True
-        return
-    else:
-        #if it has not, every sub state is recursivly searched through
-        for transition in len(state.outgoing):
-            if !(state.outgoing[transition].discovered or state.outgoing[transition].explored):
-                depthFirstSearch(state.outgoing[transition])
-        #after substates has been explored, label state as explored and return
-        state.discovered = True
-        state.explored = True
-        return
 
