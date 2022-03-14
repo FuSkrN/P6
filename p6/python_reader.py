@@ -46,7 +46,7 @@ class C_Reader:
         for line in lines:
             #check if line is a function definition and is not a prototype
             searchResult = re.search(self.functionPattern, line)
-            if searchResult != None and re.search(self.prototypePattern, line) == None:
+            if searchResult != None and re.search(self.prototypePattern, line) == None and counter == 0:
                 self.scopeName.append('.' + searchResult.group(3))
                 isInScope = True
                 funcName = searchResult.group(3)
@@ -55,7 +55,7 @@ class C_Reader:
             else:
                 searchResult = re.search(self.forPattern, line)
                 #checks if the line is an if else pattern
-                if searchResult != None:
+                if searchResult != None and counter == 0:
                     self.scopeName.append('.for')
                     print("scopeName: ", self.scopeName)
                     isInScope = True
@@ -65,7 +65,6 @@ class C_Reader:
 
             #appends text that is not the start of a scope, or end of a scope
             if isInScope == True:
-                #print("lines: ", line)
                 for symbol in line:
                     if symbol == '{':
                         if counter != 0:
@@ -84,13 +83,16 @@ class C_Reader:
                 if counter == 0:
                     isInScope = False
                     self.get_scopes(text)
-                    print("exited function")
-
+                    print("exited scope")
+                print("line: ", line)
                 a = self.get_variables(line, self.scopeName)
 
                 if a != None:
                     self.result.append(a)
+                text = text + '\n'
         print("scopename before pop: ",self.scopeName)
+        self.scopeName.pop(-1)
+        print("scopename after pop: ", self.scopeName)
 
 
     def get_variables(self, line, scopeArr):
