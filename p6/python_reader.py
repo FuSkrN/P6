@@ -8,13 +8,15 @@ class C_Reader:
         with open(self.fileName) as file:
                 self.file = file.read()
         self.fileLines = self.file.split("\n")
-        print(self.fileLines)
+        self.result = []
+        self.scopeName = ['global']
 
        #regex pattern to detect variable types, names and assignment values
         self.declarationPattern = re.compile(' *(int|long|pthread_t|void|char) +\**((([a-zA-Z0-9]+)(\[[0-9]*\])?)*(, ?)?)* *(=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%)? *([^;]* *);$')
         self.variablePattern = re.compile('^ *((([a-zA-Z0-9]+)(\[[0-9]*\])?)*(, ?)?)* *((=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%) *([^;]* *);).*$')
         self.prototypePattern = re.compile('^ *(int|long|pthread_t|void|char) +\**(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\));$')
         self.functionPattern = re.compile('^ *(int|long|pthread_t|void) +\**(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\)).*$')
+        self.forPattern = re.compile('for\(.*\).*')
 
 
     #get new name maybe?
@@ -22,49 +24,80 @@ class C_Reader:
         for line in self.fileLines:
             #find declaration
             if re.search(self.declarationPattern, line) != None and re.search(self.prototypePattern, line) == None:
+                pass
                 #declaration function
             #find variable assignments
             elif re.search(self.variablePattern, line) != None:
+                pass
                 #assignment function
             #find function declarations
             elif re.search(self.functionPattern, line) != None and re.search(self.prototypePattern, line) == None:
+                pass
                 #
 
-    def get_func_scope(self):
+    def get_scopes(self, scopeText):
+        print("entered a new recursion")
         counter = 0
-        isInFunc = False
-        result = []
-        for line in self.fileLines:
-            searchResult = re.search(self.functionPattern, line)
+        isInScope = False
+        lines = scopeText.split('\n')
+        text = ''
+        funcName = ''
+
+        for line in lines:
             #check if line is a function definition and is not a prototype
+            searchResult = re.search(self.functionPattern, line)
             if searchResult != None and re.search(self.prototypePattern, line) == None:
-                isInFunc = True
+                self.scopeName.append('.' + searchResult.group(3))
+                isInScope = True
                 funcName = searchResult.group(3)
                 print("entered function", funcName)
-            if isInFunc == True:
+
+            else:
+                searchResult = re.search(self.forPattern, line)
+                #checks if the line is an if else pattern
+                if searchResult != None:
+                    self.scopeName.append('.for')
+                    print("scopeName: ", self.scopeName)
+                    isInScope = True
+                    print("entered for loop")
+                else:
+                    pass
+
+            #appends text that is not the start of a scope, or end of a scope
+            if isInScope == True:
+                #print("lines: ", line)
                 for symbol in line:
                     if symbol == '{':
+                        if counter != 0:
+                            text = text + symbol
+
                         counter += 1
-                    elif symbol =='}':
+
+                    elif symbol == '}':
                         counter -= 1
+                        if counter != 0:
+                            text = text + symbol
+
+                    elif counter != 0:
+                        text = text + symbol
+
                 if counter == 0:
-                    isInFunc = False
+                    isInScope = False
+                    self.get_scopes(text)
                     print("exited function")
-                a = self.get_variables(line, funcName)
+
+                a = self.get_variables(line, self.scopeName)
+
                 if a != None:
-                    result.append(a)
-        print(result)
+                    self.result.append(a)
+        print("scopename before pop: ",self.scopeName)
 
-    def get_scopes(self):
-        scopeName = ''
-        results = []
-        for line in self.fileLines:
-            result = self.get_variables(line, scopeName)
-            if result != None:
-                print(result)
-                results.append(result)
 
-    def get_variables(self, line, scope):
+    def get_variables(self, line, scopeArr):
+        scope = ''
+        for text in scopeArr:
+            scope = scope + text
+            
         searchResult = re.search(self.declarationPattern, line)
         if searchResult == None:
             searchResult = re.search(self.variablePattern, line)
@@ -74,7 +107,7 @@ class C_Reader:
             #print(f"searchResult: {searchResult.group()}")
             #print(f"searchResult 1: {searchResult.group(1)}")
             #print(f"searchResult 2: {searchResult.group(2)}")
-            #print(f"searchResult 3: {searchResult.group(3)}")
+            #print(f"searchRefile sult 3: {searchResult.group(3)}")
             #print(f"searchResult 4: {searchResult.group(4)}")
             #print(f"searchResult 5: {searchResult.group(5)}")
             #print(f"searchResult 6: {searchResult.group(6)}")
@@ -100,8 +133,10 @@ if len(sys.argv) == 2:
     reader = C_Reader(sys.argv[1])
 else:
     reader = C_Reader("pthread_race_cond.c")
-reader.get_scopes()
+#reader.get_scopes()
 #reader = Python_Reader("pthread_race_cond.py")
 #reader.print_functions()
 #reader.print_variables()
-reader.get_func_scope()
+reader.get_scopes(reader.file)
+#for var in reader.result:
+#    print(var)
