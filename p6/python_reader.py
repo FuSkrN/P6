@@ -90,6 +90,12 @@ class C_Reader:
                 if a != None:
                     self.result.append(a)
                 text = text + '\n'
+
+            elif len(self.scopeName) == 1:
+                a = self.get_variables(line, self.scopeName)
+                if a != None:
+                    self.result.append(a)
+
         print("scopename before pop: ",self.scopeName)
         self.scopeName.pop(-1)
         print("scopename after pop: ", self.scopeName)
