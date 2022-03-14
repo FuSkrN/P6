@@ -138,5 +138,5 @@ else:
 #reader.print_functions()
 #reader.print_variables()
 reader.get_scopes(reader.file)
-#for var in reader.result:
-#    print(var)
+for var in reader.result:
+    print(var)
