@@ -20,6 +20,7 @@ class C_Reader:
         self.ifElsePattern = re.compile('^if\s*\((.*?)\)\s*((.|\n)*){(.*?)((.|\n)*)}((.|\n)*)(\s*(else|else\s+if\s*\((.*?)\))\s*{(.*?)})*$')
 
     def get_scopes(self, scopeText):
+        lineCounter = 0
         print("entered a new recursion")
         counter = 0
         isInScope = False
@@ -72,24 +73,25 @@ class C_Reader:
                     self.get_scopes(text)
 
                 #gets the variables from a line and appends it to the result list
-                a = self.get_variables(line, self.scopeName)
+                a = self.get_variables(line, self.scopeName, lineCounter)
                 if a != None:
                     self.result.append(a)
 
                 #ends each line with a newline for the next iteration of recursion
                 text = text + '\n'
-            
+           
             #checks for variables within the global scope (when there's only one element in the scopeName list)
             elif len(self.scopeName) == 1:
-                a = self.get_variables(line, self.scopeName)
+                a = self.get_variables(line, self.scopeName, lineCounter)
                 if a != None:
                     self.result.append(a)
 
+            lineCounter += 1
         #pops the latest scopename out of the scopeName list.
         self.scopeName.pop(-1)
 
 
-    def get_variables(self, line, scopeArr):
+    def get_variables(self, line, scopeArr, lineCounter):
         #defines the scope name for later usage
         scope = ''
         for text in scopeArr:
@@ -118,11 +120,13 @@ class C_Reader:
             if searchResult.group(3) == None:
                 return {"scope": scope,
                         "name": searchResult.group(2),
-                        "value": searchResult.group(7)} 
+                        "value": searchResult.group(7),
+                        "lineCounter": lineCounter} 
             else:
                 return {"scope": scope, 
                     "name": searchResult.group(4), 
-                    "value": searchResult.group(8)}
+                    "value": searchResult.group(8),
+                    "lineCounter": lineCounter}
         else:
             return None
 
