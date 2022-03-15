@@ -13,7 +13,7 @@ class C_Reader:
 
        #regex pattern to detect variable types, names and assignment values
         self.declarationPattern = re.compile(' *(int|long|pthread_t|void|char) +\**((([a-zA-Z0-9]+)(\[[0-9]*\])?)*(, ?)?)* *(=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%)? *([^;]* *);$')
-        self.variablePattern = re.compile('^ *((([a-zA-Z0-9]+)(\[[0-9]*\])?)*(, ?)?)* *((=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%) *([^;]* *);).*$')
+        self.variablePattern = re.compile('^\s*(([a-zA-Z0-9]+)(\[[0-9]*\])?)*() *((=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%) *([^;\n]* *);)\s*$')
         self.prototypePattern = re.compile('^ *(int|long|pthread_t|void|char) +\**(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\));$')
         self.functionPattern = re.compile('^ *(int|long|pthread_t|void) +\**(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\)).*$')
         self.forPattern = re.compile('for\(.*\).*')
@@ -105,7 +105,7 @@ class C_Reader:
             #print(f"searchResult: {searchResult.group()}")
             #print(f"searchResult 1: {searchResult.group(1)}")
             #print(f"searchResult 2: {searchResult.group(2)}")
-            #print(f"searchRefile sult 3: {searchResult.group(3)}")
+            #print(f"searchResult 3: {searchResult.group(3)}")
             #print(f"searchResult 4: {searchResult.group(4)}")
             #print(f"searchResult 5: {searchResult.group(5)}")
             #print(f"searchResult 6: {searchResult.group(6)}")
@@ -115,10 +115,10 @@ class C_Reader:
            
         #returns the scope name, variable name and assignment value as a 3-tuple
         if searchResult != None and re.search(self.prototypePattern, searchResult.group()) == None:
-            if searchResult.group(4) == None:
+            if searchResult.group(3) == None:
                 return {"scope": scope,
-                        "name": searchResult.group(3),
-                        "value": searchResult.group(8)} 
+                        "name": searchResult.group(2),
+                        "value": searchResult.group(7)} 
             else:
                 return {"scope": scope, 
                     "name": searchResult.group(4), 
