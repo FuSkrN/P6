@@ -27,4 +27,5 @@ a.get_scopes(a.file)
 b = graph(a.result)
 for x in b.stateArray:
     if len(x.variables) != 0:
+        #pass
         print(len(x.variables), x.variables[0], x.variables[-1])

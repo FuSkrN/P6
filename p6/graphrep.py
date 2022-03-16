@@ -15,15 +15,27 @@ class state:
 
     def addVar(self, var: dict, predecessorState):
         #check if variable already exist in state and remove if yes
-        variableRegex = re.compile('^[a-zA-Z][a-zA-Z0-9]*$')
+        variableRegex = re.compile('[a-zA-Z][a-zA-Z0-9]*')
+        values = []
         #TODO make it do the math in the expressions
-        mylist = []
+
         for v in self.variables:
             if v['name'] == var['name']:
                 self.variables.remove(v)
-            mylist.append(re.findall(variableRegex, v['value']))
-            print(mylist, v['value'])
+            
+            valueVariables = re.findall(variableRegex, v['value'])
+            if len(valueVariables) != 0:
+                for i in valueVariables:
+                    for var in predecessorState.variables:
+                        if var['name'] == i:
+                            values.append(var)
+        if len(values) != 0:
+            print('values: ', values)
+        values.sort(key=self.sortByNameLength, reverse=True)
         self.variables.append(var)
+
+    def sortByNameLength(self, x):
+        return len(x['name'])
 
     #check if the state is an end state
     def isEndpoint(self):
