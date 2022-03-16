@@ -1,3 +1,5 @@
+import re
+
 class state:
     def __init__(self, label):
         self.label = label
@@ -11,12 +13,17 @@ class state:
     def addTransition(self, state):
         self.outgoing.append(transition(self, state))
 
-    def addVar(self, var: dict):
+    def addVar(self, var: dict, predecessorState):
         #check if variable already exist in state and remove if yes
-        for v in variables:
-            if v.name == var.name:
-                variables.remove(v)
-        variables.append(var)
+        variableRegex = re.compile('^[a-zA-Z][a-zA-Z0-9]*$')
+        #TODO make it do the math in the expressions
+        mylist = []
+        for v in self.variables:
+            if v['name'] == var['name']:
+                self.variables.remove(v)
+            mylist.append(re.findall(variableRegex, v['value']))
+            print(mylist, v['value'])
+        self.variables.append(var)
 
     #check if the state is an end state
     def isEndpoint(self):

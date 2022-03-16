@@ -131,14 +131,6 @@ class C_Reader:
             return None
 
 
-if len(sys.argv) == 2:
-    reader = C_Reader(sys.argv[1])
-else:
-    reader = C_Reader("pthread_race_cond.c")
-#reader.get_scopes()
 #reader = Python_Reader("pthread_race_cond.py")
 #reader.print_functions()
 #reader.print_variables()
-reader.get_scopes(reader.file)
-for var in reader.result:
-    print(var)
