@@ -1,3 +1,4 @@
+from operator import truediv
 import re
 
 class state:
@@ -17,11 +18,16 @@ class state:
         #check if variable already exist in state and remove if yes
         variableRegex = re.compile('[a-zA-Z][a-zA-Z0-9]*')
         values = []
+        isMatch = False
         #TODO make it do the math in the expressions
+
+        print('old:', self.variables, "\n\n")
 
         for v in self.variables:
             if v['name'] == var['name']:
-                self.variables.remove(v)
+                print(f"Updated {v['name']}'s value {v['value']} to {var['name']}'s value {var['value']}...\n")
+                isMatch = True
+                v['value'] = var['value']
             
             valueVariables = re.findall(variableRegex, v['value'])
             if len(valueVariables) != 0:
@@ -29,10 +35,15 @@ class state:
                     for var in predecessorState.variables:
                         if var['name'] == i:
                             values.append(var)
-        if len(values) != 0:
-            print('values: ', values)
+                            # print(f"appended {var} to values...\n")
+        # if len(values) != 0:
+        if isMatch == False:
+            print(f"Added new dict {var['name']}:{var['value']}")
+            self.variables.append(var)
+            # print('values: ', values)
         values.sort(key=self.sortByNameLength, reverse=True)
-        self.variables.append(var)
+        # self.variables.append(var)
+        print('new:', self.variables, "\n\n")
 
     def sortByNameLength(self, x):
         return len(x['name'])
