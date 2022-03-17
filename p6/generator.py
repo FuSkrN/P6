@@ -20,9 +20,11 @@ class graph:
             newState = graphrep.state('s' + str(counter))
             counter += 1
             
+            #print("var: ", var)
             # For each tuple in the previous state, add its variables
             # to the current state ...
             for v in currentState.variables:
+                # print("v:", v, "\n")
                 newState.addVar(v, currentState)
 
             # Append the new variables of the current state to a new state
@@ -30,10 +32,13 @@ class graph:
             
             # Add a transition to the new state from current state
             currentState.addTransition(newState)
-            
+            #print("currrrrrrrrentstate.ingoing: ", currentState.ingoing)
+            #print("curentstate.outgoing: ", currentState.outgoing)
             # Update current state to the new state and append to STA
             currentState = newState
             self.stateArray.append(currentState)
+            
+            #print("newstate: ", newState.label)
     
 
 a = python_reader.C_Reader('pthread_setting_variables.c')
@@ -43,4 +48,5 @@ for x in b.stateArray:
     if len(x.variables) != 0:
         #pass
         print(len(x.variables), x.variables[0], x.variables[-1])
+
 print("a.result:", a.result)

@@ -15,17 +15,18 @@ class state:
         self.outgoing.append(transition(self, state))
 
     def addVar(self, var: dict, predecessorState):
+        print("var: ", var)
         #check if variable already exist in state and remove if yes
         variableRegex = re.compile('[a-zA-Z][a-zA-Z0-9]*')
         values = []
         isMatch = False
         #TODO make it do the math in the expressions
 
-        print('old:', self.variables, "\n\n")
+        # print('old:', self.variables, "\n\n")
 
         for v in self.variables:
             if v['name'] == var['name']:
-                print(f"Updated {v['name']}'s value {v['value']} to {var['name']}'s value {var['value']}...\n")
+                # print(f"Updated {v['name']}'s value {v['value']} to {var['name']}'s value {var['value']}...\n")
                 isMatch = True
                 v['value'] = var['value']
             
@@ -38,12 +39,12 @@ class state:
                             # print(f"appended {var} to values...\n")
         # if len(values) != 0:
         if isMatch == False:
-            print(f"Added new dict {var['name']}:{var['value']}")
+            # print(f"Added new dict {var['name']}:{var['value']}")
             self.variables.append(var)
             # print('values: ', values)
         values.sort(key=self.sortByNameLength, reverse=True)
         # self.variables.append(var)
-        print('new:', self.variables, "\n\n")
+        # print('new:', self.variables, "\n\n")
 
     def sortByNameLength(self, x):
         return len(x['name'])
