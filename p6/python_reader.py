@@ -18,7 +18,7 @@ class C_Reader:
         self.functionPattern = re.compile('^ *(int|long|pthread_t|void) +\**(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\)).*$')
         self.forPattern = re.compile('for\(.*\).*')
         self.ifElsePattern = re.compile('^if\s*\((.*?)\)\s*((.|\n)*){(.*?)((.|\n)*)}((.|\n)*)(\s*(else|else\s+if\s*\((.*?)\))\s*{(.*?)})*$')
-        self.functionCallPattern = re.compile('\s*((\-)*[_a-zA-Z][a-zA-Z0-9_\-]*)\((.*?)\)')
+        self.functionCallPattern = re.compile('$\s*((\-)*[_a-zA-Z][a-zA-Z0-9_\-]*)\((.*?)\)()')
 
     def get_scopes(self, scopeText):
         lineCounter = 0
@@ -102,6 +102,8 @@ class C_Reader:
         searchResult = re.search(self.declarationPattern, line)
         if searchResult == None:
             searchResult = re.search(self.variablePattern, line)
+            if searchResult == None:
+                searchResult = re.search(self.functionCallPattern, line)
         
         #debugging code, can be deleted
         if searchResult != None and re.search(self.prototypePattern, searchResult.group()) == None:
@@ -118,20 +120,32 @@ class C_Reader:
            
         #returns the scope name, variable name and assignment value as a 3-tuple
         if searchResult != None and re.search(self.prototypePattern, searchResult.group()) == None:
+            print(searchResult.group())
             if searchResult.group(3) == None:
                 return {"scope": scope,
                         "name": searchResult.group(2),
                         "value": searchResult.group(7),
-                        "lineCounter": lineCounter} 
+                        "lineCounter": lineCounter,
+                        "commandType": "declaration"} 
+            elif searchResult.group(4) == None:
+                return {"scope": scope,
+                        "name": searchRestul.group(1),
+                        "value": "",
+                        "lineCounter": lineCounter,
+                        "commandType": "functionCall"}
             else:
                 return {"scope": scope, 
                     "name": searchResult.group(4), 
                     "value": searchResult.group(8),
-                    "lineCounter": lineCounter}
+                    "lineCounter": lineCounter,
+                    "commandType": "assignment"}
         else:
             return None
 
 
-#reader = Python_Reader("pthread_race_cond.py")
+reader = C_Reader("pthread_setting_variables.c")
+reader.get_scopes(reader.file)
+for r in reader.result:
+    print(r)
 #reader.print_functions()
 #reader.print_variables()
