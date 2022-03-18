@@ -1,4 +1,4 @@
-# Example dictionaries
+# Example dictionary lists
 # Dict1 contains terms that should be updated with key-value pairs from dict2
 dict1 = {'key1': 'value1', 'key2': 'value2', 'key3': 'value3'}
 dict2 = {'value1': 'AAA', 'value3': 'CCC'}
