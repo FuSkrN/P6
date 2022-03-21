@@ -18,11 +18,10 @@ class C_Reader:
         self.functionPattern = re.compile('^ *(int|long|pthread_t|void) +\**(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\)).*$')
         self.forPattern = re.compile('for\(.*\).*')
         self.ifElsePattern = re.compile('^if\s*\((.*?)\)\s*((.|\n)*){(.*?)((.|\n)*)}((.|\n)*)(\s*(else|else\s+if\s*\((.*?)\))\s*{(.*?)})*$')
-        self.functionCallPattern = re.compile('\s*((\-)*[_a-zA-Z][a-zA-Z0-9_\-]*)\((.*?)\)')
+        self.functionCallPattern = re.compile('\s*((\-)*[_a-zA-Z][a-zA-Z0-9_\-]*)\((.*?)\)();')
 
     def get_scopes(self, scopeText):
         lineCounter = 0
-        print("entered a new recursion")
         counter = 0
         isInScope = False
         lines = scopeText.split('\n')
@@ -42,9 +41,7 @@ class C_Reader:
                 searchResult = re.search(self.forPattern, line)
                 if searchResult != None and counter == 0:
                     self.scopeName.append('.for')
-                    print("scopeName: ", self.scopeName)
                     isInScope = True
-                    print("entered for loop")
                 else:
                     #checks if the lin is an if else logic statement
                     searchResult = re.search(self.ifElsePattern, line)
@@ -102,6 +99,8 @@ class C_Reader:
         searchResult = re.search(self.declarationPattern, line)
         if searchResult == None:
             searchResult = re.search(self.variablePattern, line)
+            if searchResult == None:
+                searchResult = re.search(self.functionCallPattern, line)
         
         #debugging code, can be deleted
         if searchResult != None and re.search(self.prototypePattern, searchResult.group()) == None:
@@ -115,23 +114,36 @@ class C_Reader:
             #print(f"searchResult 7: {searchResult.group(7)}")
             #print(f"searchResult 8: {searchResult.group(8)}")
             pass
-           
         #returns the scope name, variable name and assignment value as a 3-tuple
         if searchResult != None and re.search(self.prototypePattern, searchResult.group()) == None:
+            #assignment
             if searchResult.group(3) == None:
                 return {"scope": scope,
                         "name": searchResult.group(2),
                         "value": searchResult.group(7),
-                        "lineCounter": lineCounter} 
+                        "lineCounter": lineCounter,
+                        "commandType": "assignment"}
+            #function
+            elif searchResult.group(4) == "":
+                return {"scope": scope,
+                        "name": searchResult.group(1),
+                        "value": searchResult.group(3),
+                        "lineCounter": lineCounter,
+                        "commandType": "functionCall"}
+            #declarations
             else:
                 return {"scope": scope, 
-                    "name": searchResult.group(4), 
-                    "value": searchResult.group(8),
-                    "lineCounter": lineCounter}
+                        "name": searchResult.group(4), 
+                        "value": searchResult.group(8),
+                        "lineCounter": lineCounter,
+                        "commandType": "declaration"}
         else:
             return None
 
 
-#reader = Python_Reader("pthread_race_cond.py")
+#reader = C_Reader("pthread_setting_variables.c")
+#reader.get_scopes(reader.file)
+#for r in reader.result:
+#    print(r)
 #reader.print_functions()
 #reader.print_variables()
