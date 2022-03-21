@@ -20,12 +20,14 @@ class graph:
             newState = graphrep.state('s' + str(counter))
             counter += 1
             
-            #print("var: ", var)
+            print("var in self.variables (from init): ", var)
             # For each tuple in the previous state, add its variables
             # to the current state ...
             for v in currentState.variables:
                 # print("v:", v, "\n")
+                # print(f"Before .addVar: {v}\n\n")
                 newState.addVar(v, currentState)
+                # print(f"After .addVar: {v}\n\n")
 
             # Append the new variables of the current state to a new state
             newState.addVar(var, currentState)
@@ -44,9 +46,10 @@ class graph:
 a = python_reader.C_Reader('pthread_setting_variables.c')
 a.get_scopes(a.file)
 b = graph(a.result)
-for x in b.stateArray:
-    if len(x.variables) != 0:
-        #pass
-        print(len(x.variables), x.variables[0], x.variables[-1])
+# for x in b.stateArray:
+#     if len(x.variables) != 0:
+#         #pass
+#         print(len(x.variables), x.variables[0], x.variables[-1])
 
 print("a.result:", a.result)
+print(f"\n\nb.variables: {b.variables}")
