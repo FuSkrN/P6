@@ -22,7 +22,6 @@ class C_Reader:
 
     def get_scopes(self, scopeText):
         lineCounter = 0
-        print("entered a new recursion")
         counter = 0
         isInScope = False
         lines = scopeText.split('\n')
@@ -42,9 +41,7 @@ class C_Reader:
                 searchResult = re.search(self.forPattern, line)
                 if searchResult != None and counter == 0:
                     self.scopeName.append('.for')
-                    print("scopeName: ", self.scopeName)
                     isInScope = True
-                    print("entered for loop")
                 else:
                     #checks if the lin is an if else logic statement
                     searchResult = re.search(self.ifElsePattern, line)
@@ -95,7 +92,6 @@ class C_Reader:
     def get_variables(self, line, scopeArr, lineCounter):
         #defines the scope name for later usage
         scope = ''
-        #print("line: ", line)
         for text in scopeArr:
             scope = scope + text
         
@@ -108,11 +104,11 @@ class C_Reader:
         
         #debugging code, can be deleted
         if searchResult != None and re.search(self.prototypePattern, searchResult.group()) == None:
-            print(f"searchResult: {searchResult.group()}")
-            print(f"searchResult 1: {searchResult.group(1)}")
-            print(f"searchResult 2: {searchResult.group(2)}")
-            print(f"searchResult 3: {searchResult.group(3)}")
-            print(f"searchResult 4: {searchResult.group(4)}")
+            #print(f"searchResult: {searchResult.group()}")
+            #print(f"searchResult 1: {searchResult.group(1)}")
+            #print(f"searchResult 2: {searchResult.group(2)}")
+            #print(f"searchResult 3: {searchResult.group(3)}")
+            #print(f"searchResult 4: {searchResult.group(4)}")
             #print(f"searchResult 5: {searchResult.group(5)}")
             #print(f"searchResult 6: {searchResult.group(6)}")
             #print(f"searchResult 7: {searchResult.group(7)}")
@@ -147,7 +143,7 @@ class C_Reader:
 
 reader = C_Reader("pthread_setting_variables.c")
 reader.get_scopes(reader.file)
-for r in reader.result:
-    print(r)
+#for r in reader.result:
+#    print(r)
 #reader.print_functions()
 #reader.print_variables()
