@@ -141,8 +141,8 @@ class C_Reader:
             return None
 
 
-reader = C_Reader("pthread_setting_variables.c")
-reader.get_scopes(reader.file)
+#reader = C_Reader("pthread_setting_variables.c")
+#reader.get_scopes(reader.file)
 #for r in reader.result:
 #    print(r)
 #reader.print_functions()
