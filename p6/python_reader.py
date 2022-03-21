@@ -18,7 +18,7 @@ class C_Reader:
         self.functionPattern = re.compile('^ *(int|long|pthread_t|void) +\**(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\)).*$')
         self.forPattern = re.compile('for\(.*\).*')
         self.ifElsePattern = re.compile('^if\s*\((.*?)\)\s*((.|\n)*){(.*?)((.|\n)*)}((.|\n)*)(\s*(else|else\s+if\s*\((.*?)\))\s*{(.*?)})*$')
-        self.functionCallPattern = re.compile('$\s*((\-)*[_a-zA-Z][a-zA-Z0-9_\-]*)\((.*?)\)()')
+        self.functionCallPattern = re.compile('\s*((\-)*[_a-zA-Z][a-zA-Z0-9_\-]*)\((.*?)\)();')
 
     def get_scopes(self, scopeText):
         lineCounter = 0
@@ -95,6 +95,7 @@ class C_Reader:
     def get_variables(self, line, scopeArr, lineCounter):
         #defines the scope name for later usage
         scope = ''
+        #print("line: ", line)
         for text in scopeArr:
             scope = scope + text
         
@@ -107,38 +108,39 @@ class C_Reader:
         
         #debugging code, can be deleted
         if searchResult != None and re.search(self.prototypePattern, searchResult.group()) == None:
-            #print(f"searchResult: {searchResult.group()}")
-            #print(f"searchResult 1: {searchResult.group(1)}")
-            #print(f"searchResult 2: {searchResult.group(2)}")
-            #print(f"searchResult 3: {searchResult.group(3)}")
-            #print(f"searchResult 4: {searchResult.group(4)}")
+            print(f"searchResult: {searchResult.group()}")
+            print(f"searchResult 1: {searchResult.group(1)}")
+            print(f"searchResult 2: {searchResult.group(2)}")
+            print(f"searchResult 3: {searchResult.group(3)}")
+            print(f"searchResult 4: {searchResult.group(4)}")
             #print(f"searchResult 5: {searchResult.group(5)}")
             #print(f"searchResult 6: {searchResult.group(6)}")
             #print(f"searchResult 7: {searchResult.group(7)}")
             #print(f"searchResult 8: {searchResult.group(8)}")
             pass
-           
         #returns the scope name, variable name and assignment value as a 3-tuple
         if searchResult != None and re.search(self.prototypePattern, searchResult.group()) == None:
-            print(searchResult.group())
+            #assignment
             if searchResult.group(3) == None:
                 return {"scope": scope,
                         "name": searchResult.group(2),
                         "value": searchResult.group(7),
                         "lineCounter": lineCounter,
-                        "commandType": "declaration"} 
-            elif searchResult.group(4) == None:
+                        "commandType": "assignment"}
+            #function
+            elif searchResult.group(4) == "":
                 return {"scope": scope,
-                        "name": searchRestul.group(1),
-                        "value": "",
+                        "name": searchResult.group(1),
+                        "value": searchResult.group(3),
                         "lineCounter": lineCounter,
                         "commandType": "functionCall"}
+            #declarations
             else:
                 return {"scope": scope, 
-                    "name": searchResult.group(4), 
-                    "value": searchResult.group(8),
-                    "lineCounter": lineCounter,
-                    "commandType": "assignment"}
+                        "name": searchResult.group(4), 
+                        "value": searchResult.group(8),
+                        "lineCounter": lineCounter,
+                        "commandType": "declaration"}
         else:
             return None
 
