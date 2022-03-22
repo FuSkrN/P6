@@ -1,1 +1,0 @@
-# Used to identify types of dictionaries used as input in symbol table
