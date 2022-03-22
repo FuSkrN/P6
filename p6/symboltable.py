@@ -56,12 +56,31 @@ class Symboltable:
             #something went wrong
             pass
 
+    def retrieve_symbol(self, dictionary):
+        seperator = "."
+        while True:
+            for sRetrieve in self.symboltable:
+                if sRetrieve['scope'] == dictionary['scope']:
+                    for var in sRetrieve['varList']:
+                        if var['name'] == dictionary['name']:
+                            return var
+
+            tempName = dictionary['scope'].split(".") 
+            tempName.pop()
+            dictionary['scope'] = seperator.join(tempName)
+
+           
+
 
 reader = python_reader.C_Reader("pthread_setting_variables.c")
 reader.get_scopes(reader.file)
 st = Symboltable()
-
 for test in reader.result:
     st.update_symbol(test)
 for wad in st.symboltable:
     print(wad)
+print('\n\n')
+fmwaioff = {'scope': 'global.setY', 'name': 'x'}
+
+one = st.retrieve_symbol(fmwaioff)
+print(one)
