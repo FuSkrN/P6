@@ -1,4 +1,4 @@
-import graphrep
+import graph_rep
 import python_reader
 
 class graph:
@@ -7,7 +7,7 @@ class graph:
         self.stateArray = []
 
         # Define starting state (s0)
-        self.startState = graphrep.state('s0')
+        self.startState = graph_rep.state('s0')
         self.stateArray.append(self.startState)
 
         # Counter used to name states s1, s2, ..., sN
@@ -17,7 +17,7 @@ class graph:
         # For each tuple in the list of dictionaries
         # Create a new state, append the counter
         for var in self.variables:
-            newState = graphrep.state('s' + str(counter))
+            newState = graph_rep.state('s' + str(counter))
             counter += 1
             
             print("var in self.variables (from init): ", var)
