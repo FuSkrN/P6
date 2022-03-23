@@ -16,8 +16,8 @@ int main(){
     int iret1;
 	int iret2;
 
-    iret1 = pthread_create(&thread1, NULL, setX, (void*) arg1);
-    iret2 = pthread_create(&thread2, NULL, setY, (void*) arg2);
+    pthread_create(&thread1, NULL, setX, (void*) arg1);
+    pthread_create(&thread2, NULL, setY, (void*) arg2);
     
     pthread_join(thread1, NULL);
     pthread_join(thread2, NULL);

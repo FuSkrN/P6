@@ -1,25 +1,47 @@
 import re
+import python_reader
+import symboltable
 
 def findVars(expression):
     variableRegex = re.compile('[a-zA-Z][a-zA-Z0-9]*')
     variables = re.findall(variableRegex, expression)
     return variables
 
-def replaceVars(expression):
-    varsInExpression = findVars(expression)
+def replaceVars(variabledict, symboltable):
+    if variabledict['commandType'] == 'functionCall':
+        return
+    varsInExpression = findVars(variabledict['value'])
     varsInExpression.sort(key=sortByNameLength, reverse=True)
-
     #replace the value with found value
     for variable in varsInExpression:
         #first step is to find the actual value in the symbol table
-        #here a dummy value is provided. TODO: change this!
-        varVal = "1"
+        tempdict = {"name": variable, "scope": variabledict['scope']}
+        varVal = symboltable.retrieve_symbol(tempdict)
 
-        expression = expression.replace(variable, f"({varVal})")
-    return expression
+        #replace value
+        variabledict['value'] = variabledict['value'].replace(variable, f"({varVal})")
+
+    #update the value stored in the symboltable
+    if variabledict['value'] != None or variabledict['value'] != "":
+        variabledict['value'] = evaluateExpression(variabledict['value'])
+    symboltable.update_symbol(variabledict)
+
 
 def evaluateExpression(expression):
-    return str(eval(expression))
+    try:
+        return eval(expression)
+    except:
+        pass
 
 def sortByNameLength(x):
     return len(x)
+
+reader = python_reader.C_Reader("pthread_setting_variables.c")
+reader.get_scopes(reader.file)
+st = symboltable.Symboltable()
+for test in reader.result:
+    replaceVars(test, st)
+for wad in st.symboltable:
+    print(wad)
+print('\n\n')
+fmwaioff = {'scope': 'global.setY', 'name': 'x'}

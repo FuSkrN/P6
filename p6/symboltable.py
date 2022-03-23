@@ -6,30 +6,29 @@ class Symboltable:
         self.symboltable = [{"scope": "global",
                             "varList": []}]
 
-    def add_symbol(self, symbolDict, symbolList):
+    def add_symbol(self, symbolDict):
         #add a symbol to the symboltable
         tempDict = {"name": symbolDict['name'],
                     "value": symbolDict['value'],
                     "scope": symbolDict['scope']}
         scopeFound = False
 
-        for sAdd in symbolList:
+        for sAdd in self.symboltable:
             if sAdd['scope'] == tempDict['scope']:
                 sAdd['varList'].append(tempDict)
                 scopeFound = True
                 break
         if scopeFound == False:
-            symbolList.append({"scope": tempDict['scope'],
+            self.symboltable.append({"scope": tempDict['scope'],
                                 "varList": [tempDict]})
-        return symbolList
 
-    def update_symbol_value(self, symbolDict, symbolList):
+    def update_symbol_value(self, symbolDict):
         #update the value of a symbol in the symboltable
         seperator = "."
 
         varFound = False
         while varFound == False:
-            for sUpdate in symbolList:
+            for sUpdate in self.symboltable:
                 if sUpdate['scope'] == symbolDict['scope']:
                     for var in sUpdate['varList']:
                         if var['name'] == symbolDict['name']:
@@ -41,16 +40,15 @@ class Symboltable:
             tempName.pop()
             symbolDict['scope'] = seperator.join(tempName)
 
-        return symbolList
 
     def update_symbol(self, dictionary):
         if dictionary['commandType'] == "declaration":
             #add variable to dictionary
-            self.symboltable = self.add_symbol(dictionary, self.symboltable)
+            self.add_symbol(dictionary)
             
         elif dictionary['commandType'] == "assignment":
             #replace value in dictionary
-            self.symboltable = self.update_symbol_value(dictionary, self.symboltable)
+            self.update_symbol_value(dictionary)
 
         else:
             #something went wrong
@@ -63,24 +61,11 @@ class Symboltable:
                 if sRetrieve['scope'] == dictionary['scope']:
                     for var in sRetrieve['varList']:
                         if var['name'] == dictionary['name']:
-                            return var
+                            return var['value']
 
             tempName = dictionary['scope'].split(".") 
             tempName.pop()
             dictionary['scope'] = seperator.join(tempName)
+        
 
-           
 
-
-reader = python_reader.C_Reader("pthread_setting_variables.c")
-reader.get_scopes(reader.file)
-st = Symboltable()
-for test in reader.result:
-    st.update_symbol(test)
-for wad in st.symboltable:
-    print(wad)
-print('\n\n')
-fmwaioff = {'scope': 'global.setY', 'name': 'x'}
-
-one = st.retrieve_symbol(fmwaioff)
-print(one)
