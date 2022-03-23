@@ -32,7 +32,7 @@ void *setX(){
 	int a = 5;
 	int b;
 
-	a += 10;
+	a = a + 10;
 	b = a - 5;
 	x = b;
 }

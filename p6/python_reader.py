@@ -1,4 +1,3 @@
-import pthread_race_cond
 import sys
 import re
 
