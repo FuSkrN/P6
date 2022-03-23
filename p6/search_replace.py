@@ -36,12 +36,4 @@ def evaluateExpression(expression):
 def sortByNameLength(x):
     return len(x)
 
-reader = python_reader.C_Reader("pthread_setting_variables.c")
-reader.get_scopes(reader.file)
-st = symboltable.Symboltable()
-for test in reader.result:
-    replaceVars(test, st)
-for wad in st.symboltable:
-    print(wad)
-print('\n\n')
-fmwaioff = {'scope': 'global.setY', 'name': 'x'}
+
