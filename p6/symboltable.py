@@ -36,7 +36,7 @@ class Symboltable:
                             varFound = True
                             break
                     break
-            tempName = symbolDict['scope'].split(".")
+            tempName = symbolDict['scope'].split(seperator)
             tempName.pop()
             symbolDict['scope'] = seperator.join(tempName)
 
@@ -57,15 +57,17 @@ class Symboltable:
     def retrieve_symbol(self, dictionary):
         seperator = "."
         while True:
-            for sRetrieve in self.symboltable:
-                if sRetrieve['scope'] == dictionary['scope']:
-                    for var in sRetrieve['varList']:
+            for scope in self.symboltable:
+                if scope['scope'] == dictionary['scope']:
+                    for var in scope['varList']:
                         if var['name'] == dictionary['name']:
                             return var['value']
 
-            tempName = dictionary['scope'].split(".") 
+            tempName = dictionary['scope'].split(seperator) 
             tempName.pop()
             dictionary['scope'] = seperator.join(tempName)
+            if len(dictionary['scope'].split(seperator)) == 0:
+                return
         
 
 
