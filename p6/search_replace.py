@@ -8,10 +8,12 @@ def findVars(expression):
     return variables
 
 def replaceVars(variabledict, symboltable):
+    #Error handling to prevent crashing when passing the dictionary to symboltable
     if variabledict['commandType'] == 'functionCall':
         return
     varsInExpression = findVars(variabledict['value'])
     varsInExpression.sort(key=sortByNameLength, reverse=True)
+
     #replace the value with found value
     for variable in varsInExpression:
         #first step is to find the actual value in the symbol table
@@ -25,7 +27,6 @@ def replaceVars(variabledict, symboltable):
     if variabledict['value'] != None or variabledict['value'] != "":
         variabledict['value'] = evaluateExpression(variabledict['value'])
     symboltable.update_symbol(variabledict)
-
 
 def evaluateExpression(expression):
     try:
