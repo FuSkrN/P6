@@ -3,13 +3,14 @@ import re
 import search_replace
 
 class state:
-    def __init__(self, label, symboltable):
+    def __init__(self, label: str, symboltable: list, programCounters: list):
         self.label = label
         #connections to other states
         self.outgoing = []
         #connections to this state
         self.ingoing = []
         self.symboltable = symboltable
+        self.programCounters = programCounters
     
     #add transition from current state to another state
     def addTransition(self, state):
