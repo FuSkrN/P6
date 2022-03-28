@@ -11,10 +11,10 @@ class C_Reader:
         self.scopeName = ['global']
 
        #regex pattern to detect variable types, names and assignment values
-        self.declarationPattern = re.compile(' *(int|long|pthread_t|void|char) +\**((([a-zA-Z0-9]+)(\[[0-9]*\])?)*(, ?)?)* *(=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%)? *([^;]* *);$')
+        self.declarationPattern = re.compile('\s*(int|long|pthread_t|void|char) +\**((([a-zA-Z0-9]+)(\[[0-9]*\])?)*(, ?)?)* *(=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%)? *([^;]* *);\s*$')
         self.variablePattern = re.compile('^\s*(([a-zA-Z0-9]+)(\[[0-9]*\])?)*() *((=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%) *([^;\n]* *);)\s*$')
-        self.prototypePattern = re.compile('^ *(int|long|pthread_t|void|char) +\**(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\));$')
-        self.functionPattern = re.compile('^ *(int|long|pthread_t|void) +\**(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\)).*$')
+        self.prototypePattern = re.compile('^\s*(int|long|pthread_t|void|char) +\**(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\));$')
+        self.functionPattern = re.compile('^\s*(int|long|pthread_t|void) +\**(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\)).*$')
         self.forPattern = re.compile('for\(.*\).*')
         self.ifElsePattern = re.compile('^if\s*\((.*?)\)\s*((.|\n)*){(.*?)((.|\n)*)}((.|\n)*)(\s*(else|else\s+if\s*\((.*?)\))\s*{(.*?)})*$')
         self.functionCallPattern = re.compile('\s*((\-)*[_a-zA-Z][a-zA-Z0-9_\-]*)\((.*?)\)();')
@@ -26,7 +26,6 @@ class C_Reader:
         lines = scopeText.split('\n')
         text = ''
         funcName = ''
-
         for line in lines:
             #check if line is a function definition and is not a prototype
             searchResult = re.search(self.functionPattern, line)
@@ -47,7 +46,6 @@ class C_Reader:
                     if searchResult != None and counter == 0:
                         self.scopeName.append('.ifelse')
                         isInScope = True
-
             #appends text that is not the start of a scope, or end of a scope, to a string
             if isInScope == True:
                 for symbol in line:
@@ -68,22 +66,24 @@ class C_Reader:
                 if counter == 0:
                     isInScope = False
                     self.get_scopes(text)
+                    text = ""
 
                 #gets the variables from a line and appends it to the result list
                 a = self.get_variables(line, self.scopeName, lineCounter)
-                if a != None:
+                if a != None and counter == 0:
                     self.result.append(a)
+                    lineCounter += 1
 
                 #ends each line with a newline for the next iteration of recursion
                 text = text + '\n'
            
             #checks for variables within the global scope (when there's only one element in the scopeName list)
-            elif len(self.scopeName) == 1:
+            elif counter == 0:
                 a = self.get_variables(line, self.scopeName, lineCounter)
                 if a != None:
                     self.result.append(a)
+                    lineCounter += 1
 
-            lineCounter += 1
         #pops the latest scopename out of the scopeName list.
         self.scopeName.pop(-1)
 
