@@ -19,8 +19,8 @@ int main(){
     pthread_create(&thread1, NULL, setX, (void*) arg1);
     pthread_create(&thread2, NULL, setY, (void*) arg2);
     
-    pthread_join(thread1, NULL);
-    pthread_join(thread2, NULL);
+//    pthread_join(thread1, NULL);
+//    pthread_join(thread2, NULL);
 
 	printf("%d\n", x);
     printf("%d\n", y);

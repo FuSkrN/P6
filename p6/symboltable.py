@@ -62,12 +62,15 @@ class Symboltable:
                     for var in scope['varList']:
                         if var['name'] == dictionary['name']:
                             return var['value']
+                elif dictionary['scope'] == "":
+                    return None
 
             tempName = dictionary['scope'].split(seperator) 
             tempName.pop()
             dictionary['scope'] = seperator.join(tempName)
             if len(dictionary['scope'].split(seperator)) == 0:
                 return
+
         
 
 

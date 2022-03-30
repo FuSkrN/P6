@@ -4,12 +4,12 @@ import symboltable
 
 def findVars(expression):
     variableRegex = re.compile('[a-zA-Z][a-zA-Z0-9]*')
-    variables = re.findall(variableRegex, expression)
+    variables = re.findall(variableRegex, str(expression))
     return variables
 
 def replaceVars(variabledict, symboltable):
     #Error handling to prevent crashing when passing the dictionary to symboltable
-    if variabledict['commandType'] == 'functionCall':
+    if variabledict['commandType'] == 'functionCall' or variabledict['value'] == None:
         return
     varsInExpression = findVars(variabledict['value'])
     varsInExpression.sort(key=sortByNameLength, reverse=True)
@@ -22,7 +22,6 @@ def replaceVars(variabledict, symboltable):
 
         #replace value
         variabledict['value'] = variabledict['value'].replace(variable, f"({varVal})")
-
     #update the value stored in the symboltable
     if variabledict['value'] != None or variabledict['value'] != "":
         variabledict['value'] = evaluateExpression(variabledict['value'])
