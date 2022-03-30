@@ -24,6 +24,12 @@ class state:
             return True
         else:
             return False
+    
+    def __eq__(self, other):
+        if self.__dict__ == other.__dict__:
+            return True
+        else if self.__dict__ != other.__dict__:
+            return False
 
 class transition:
     def __init__(self, origin, destination):
