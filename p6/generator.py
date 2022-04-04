@@ -79,7 +79,7 @@ class graph:
         #for each programcounter in currentState, simulate the next child states
         stateQueue = [currentState]
         while len(stateQueue) != 0:
-            print(f"----------stateQueue.label: {stateQueue[0].label}, programCounters: {stateQueue[0].programCounters}")
+            #print(f"----------\nstateQueue.label: {stateQueue[0].label}, programCounters: {stateQueue[0].programCounters}")
             for thread in stateQueue[0].programCounters:
                 stateFound = False
                 #find and execute the variable then append the new state to the list
@@ -88,10 +88,14 @@ class graph:
                 for variable in self.variables:
                     splitScopeName = variable['scope'].split(".")
                     #identify the correct function
+                    #print(f"checking for variable counter: {thread['counter']} and {variable['lineCounter']} as variable: {variable}")
                     if thread['function'] == splitScopeName[-1]:
+                        #print(f"checking for function name: {thread['function']} and {splitScopeName[-1]}")
                         #identify the correct line within the variables list
+                        #print(f"checking for variable counter: {thread['counter']} and {variable['lineCounter']} as variable: {variable}")
                         if thread['counter'] == variable['lineCounter']:
                             #make new state with the found variable and an increased thread['counter']
+                            #print(f"checking for variable counter: {thread['counter']} and {variable['lineCounter']}")
                             newState = graph_rep.state('s' + str(self.nameCounter), stateQueue[0].symboltable, stateQueue[0].programCounters)
                             self.nameCounter += 1
 
@@ -103,12 +107,17 @@ class graph:
                                     test = pthreadReturn['thread']
                                     newState.programCounters.append(test)
                                 elif pthreadReturn['type'] == "join":
+                                    foundThread = False
                                     for pc in newState.programCounters:
                                         if pthreadReturn['threadName'] == pc['name']:
-                                            varFound = True
-                                            break
+                                            foundThread = True
+                                    if foundThread == True:
+                                        self.nameCounter -= 1
+                                        varFound = True
+                                        #print(f"holding thread: {thread['name']}")
+                                        break
                             else:
-                                newState.addVar(variable)
+                                newState.addVar(variable.copy())
                                 #for counter in newState.programCounters:
                             i = 0
                             for i in range(0, len(newState.programCounters)):
@@ -116,15 +125,14 @@ class graph:
                                     #print(f"adding one to {newState.programCounters[i]} in {newState.label}")
                                     newState.programCounters[i]['counter'] += 1
                             varFound = True
-                            #print("waowapr")
-                            stateFound = self.find_eq(newState)
-                            if stateFound == False:
-                                stateQueue.append(newState)
-                                self.stateArray.append(newState)
-                            #if foundStateEquivalence == True:
+                            #stateFound = self.find_eq(newState)
+                            #if stateFound == False:
+                            #    stateQueue.append(newState)
+                            #    self.stateArray.append(newState)
+                            if stateFound == True:
                                 #stateQueue[0].addTransition(state)
                                 #self.counter -= 1
-                        
+                                print(stateFound) 
                             if stateFound == False:
                                 # Add a transition to the new state from current state
                                 stateQueue[0].addTransition(newState)
@@ -132,7 +140,6 @@ class graph:
                                 # Update current state to the new state and append to state array
                                 stateQueue.append(newState)
                                 self.stateArray.append(newState)
-                            break
 
                     #use offset to find corresponding line and create a new state from it
                     #new state should have the programcounter for a given function increased by one
@@ -141,6 +148,8 @@ class graph:
                     newState = graph_rep.state('s' + str(self.nameCounter), stateQueue[0].symboltable, stateQueue[0].programCounters)
                     self.nameCounter += 1
                     #stateQueue[0].programCounters.pop(stateQueue[0].programCounters.index(thread))
+                    print(f"popping: {newState.programCounters[(newState.programCounters.index(thread))]} from {newState.label}")
+                    print(f"with thread counter: {thread['counter']} on {thread['name']}")
                     newState.programCounters.pop(newState.programCounters.index(thread))
                     #stateFound = self.find_eq(newState)
                     if stateFound == False:
@@ -152,7 +161,7 @@ class graph:
                         #    self.stateArray[self.stateArray.index(state)].programCounters = stateQueue[0].programCounters
             #print(f"popping {stateQueue[0].label}, {stateQueue[0].programCounters}\n\n")
             #if len(stateQueue[0].programCounters) == 0:
-            print(len(stateQueue))
+            #print(len(stateQueue))
             stateQueue.pop(0)
 
     def find_eq(self, newState):
@@ -170,13 +179,13 @@ class graph:
 a = python_reader.C_Reader('pthread_setting_variables.c')
 a.get_scopes(a.file)
 b = graph(a.result)
-for r in a.result:
-    print(r)
-for x in b.stateArray:
-    print(f"stateName: {x.label}")
-    print(f"programCounters: {x.programCounters:}")
-    for y in x.ingoing:
-        print(f"ingoing: {y.label}")
-    for z in x.outgoing:
-        print(f"outgoing: {z.destination.label}")
-    print("\n")
+#for r in a.result:
+#    print(r)
+#for x in b.stateArray:
+#    print(f"stateName: {x.label}")
+#    print(f"programCounters: {x.programCounters:}")
+#    for y in x.ingoing:
+#        print(f"ingoing: {y.label}")
+#    for z in x.outgoing:
+#        print(f"outgoing: {z.destination.label}")
+#    print("\n")
