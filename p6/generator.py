@@ -22,7 +22,6 @@ class graph:
         # Create a new state, append the counter
         for var in self.variables:
             #initialize the new state. label is s + 1 and symboltable is copied from previous state
-            #print(f"pc: {currentState.programCounters}, label: {currentState.label}")
             newState = graph_rep.state('s' + str(self.nameCounter), currentState.symboltable, currentState.programCounters)
             self.nameCounter += 1
             if var['scope'] == 'global.main' and len(newState.programCounters) == 0:
@@ -79,7 +78,7 @@ class graph:
         #for each programcounter in currentState, simulate the next child states
         stateQueue = [currentState]
         while len(stateQueue) != 0:
-            #print(f"----------\nstateQueue.label: {stateQueue[0].label}, programCounters: {stateQueue[0].programCounters}")
+            print(f"----------\nstateQueue.label: {stateQueue[0].label}, programCounters: {stateQueue[0].programCounters}")
             for thread in stateQueue[0].programCounters:
                 stateFound = False
                 #find and execute the variable then append the new state to the list
@@ -88,21 +87,16 @@ class graph:
                 for variable in self.variables:
                     splitScopeName = variable['scope'].split(".")
                     #identify the correct function
-                    #print(f"checking for variable counter: {thread['counter']} and {variable['lineCounter']} as variable: {variable}")
                     if thread['function'] == splitScopeName[-1]:
-                        #print(f"checking for function name: {thread['function']} and {splitScopeName[-1]}")
                         #identify the correct line within the variables list
-                        #print(f"checking for variable counter: {thread['counter']} and {variable['lineCounter']} as variable: {variable}")
                         if thread['counter'] == variable['lineCounter']:
                             #make new state with the found variable and an increased thread['counter']
-                            #print(f"checking for variable counter: {thread['counter']} and {variable['lineCounter']}")
                             newState = graph_rep.state('s' + str(self.nameCounter), stateQueue[0].symboltable, stateQueue[0].programCounters)
                             self.nameCounter += 1
 
                             # Append the new variables of the current state to a new state
                             if variable['commandType'] == 'functionCall':
                                 pthreadReturn = self.find_pthread(variable, newState)
-                                #print("pthreadReturn: ", pthreadReturn)
                                 if pthreadReturn['type'] == "create":
                                     test = pthreadReturn['thread']
                                     newState.programCounters.append(test)
@@ -114,7 +108,6 @@ class graph:
                                     if foundThread == True:
                                         self.nameCounter -= 1
                                         varFound = True
-                                        #print(f"holding thread: {thread['name']}")
                                         break
                             else:
                                 newState.addVar(variable.copy())
@@ -122,17 +115,15 @@ class graph:
                             i = 0
                             for i in range(0, len(newState.programCounters)):
                                 if thread['function'] == newState.programCounters[i]['function']:
-                                    #print(f"adding one to {newState.programCounters[i]} in {newState.label}")
                                     newState.programCounters[i]['counter'] += 1
+                            print(f"----------newState.label: {newState.label}, programCounters: {newState.programCounters}")
+                            print(f"newState.symboltable: {newState.symboltable.symboltable}")
                             varFound = True
-                            #stateFound = self.find_eq(newState)
-                            #if stateFound == False:
-                            #    stateQueue.append(newState)
-                            #    self.stateArray.append(newState)
+                            stateFound = self.find_eq(newState)
+                            print(stateFound)
                             if stateFound == True:
                                 #stateQueue[0].addTransition(state)
-                                #self.counter -= 1
-                                print(stateFound) 
+                                self.nameCounter -= 1
                             if stateFound == False:
                                 # Add a transition to the new state from current state
                                 stateQueue[0].addTransition(newState)
@@ -148,8 +139,8 @@ class graph:
                     newState = graph_rep.state('s' + str(self.nameCounter), stateQueue[0].symboltable, stateQueue[0].programCounters)
                     self.nameCounter += 1
                     #stateQueue[0].programCounters.pop(stateQueue[0].programCounters.index(thread))
-                    print(f"popping: {newState.programCounters[(newState.programCounters.index(thread))]} from {newState.label}")
-                    print(f"with thread counter: {thread['counter']} on {thread['name']}")
+                    #print(f"popping: {newState.programCounters[(newState.programCounters.index(thread))]} from {newState.label}")
+                    #print(f"with thread counter: {thread['counter']} on {thread['name']}")
                     newState.programCounters.pop(newState.programCounters.index(thread))
                     #stateFound = self.find_eq(newState)
                     if stateFound == False:
@@ -166,13 +157,17 @@ class graph:
 
     def find_eq(self, newState):
         stateFound = False
+        returnState = None
         for state in self.stateArray:
             if newState == state:
+                print(f"newState: {newState.label}, state: {state.label}")
+                returnState = state
                 stateFound = True
-                print(f"state: {state.label}\n{state.symboltable}\n{state.programCounters}")
-                print(f"newstate: {newState.label}\n{newState.symboltable}\n{newState.programCounters}\n")
+                #print(f"state: {state.label}\n{state.symboltable}\n{state.programCounters}")
+                #print(f"newstate: {newState.label}\n{newState.symboltable}\n{newState.programCounters}\n")
                 #print(f"state {state.label} is considered the same as state {newState.label}")
                 if len(newState.ingoing) != 0 and newState.ingoing[0] not in state.ingoing:
+                    print("test")
                     state.ingoing.append(newState.ingoing[0])
         return stateFound
 
@@ -181,11 +176,13 @@ a.get_scopes(a.file)
 b = graph(a.result)
 #for r in a.result:
 #    print(r)
-#for x in b.stateArray:
-#    print(f"stateName: {x.label}")
-#    print(f"programCounters: {x.programCounters:}")
-#    for y in x.ingoing:
-#        print(f"ingoing: {y.label}")
-#    for z in x.outgoing:
-#        print(f"outgoing: {z.destination.label}")
-#    print("\n")
+for x in b.stateArray:
+    print(f"stateName: {x.label}")
+    print(f"programCounters: {x.programCounters:}")
+    for p in x.symboltable.symboltable:
+        print(p)
+    for y in x.ingoing:
+        print(f"ingoing: {y.label}")
+    for z in x.outgoing:
+        print(f"outgoing: {z.destination.label}")
+    print("\n")

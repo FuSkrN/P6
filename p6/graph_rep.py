@@ -30,23 +30,24 @@ class state:
     def __eq__(self, other):
         eqSymboltable = True
         eqProgramCounters = False
-        counter = 1
+        counter = 0
         for dictionary in self.symboltable.symboltable:
             for var in dictionary['varList']:
                 result = other.symboltable.retrieve_symbol(var.copy())
-                if result == None:
+                if result == None or var['value'] != result:
                     eqSymboltable = False
                 
         for ppc in self.programCounters:
             for opc in other.programCounters:
                 if ppc['name'] == opc['name'] and ppc['counter'] == opc['counter']:
                     counter += 1
-        #print(f"self.symboltable: {self.symboltable.symboltable}")
-        #print(f"other.symboltable: {other.symboltable.symboltable}")
+        print(f"self.symboltable: {self.symboltable.symboltable}")
+        print(f"other.symboltable: {other.symboltable.symboltable}")
         #print(counter, len(self.programCounters), len(other.programCounters))
         if counter == len(self.programCounters) and counter == len(other.programCounters):
-            eqProgramCounters == True
-         
+            eqProgramCounters = True
+        #print(f"self.label: {self.label}, other.label: {other.label}") 
+        #print(f"self.programCounters: {self.programCounters}\nother.programCounters: {other.programCounters}")
         #print(eqSymboltable, eqProgramCounters)
         return eqSymboltable and eqProgramCounters
         #if self.symboltable.symboltable.sort() == other.symboltable.symboltable.sort() and self.programCounters.sort() == other.programCounters.sort():
