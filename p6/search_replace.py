@@ -29,7 +29,10 @@ def replaceVars(variabledict, symboltable):
 
 def evaluateExpression(expression):
     try:
-        return eval(expression)
+        if expression == "":
+            return "0"
+        else:
+            return str(eval(expression))
     except:
         pass
 
