@@ -119,7 +119,7 @@ class graph:
                             print(f"----------newState.label: {newState.label}, programCounters: {newState.programCounters}")
                             print(f"newState.symboltable: {newState.symboltable.symboltable}")
                             varFound = True
-                            stateFound = self.find_eq(newState)
+                            stateFound = self.find_eq(newState, stateQueue[0])
                             print(stateFound)
                             if stateFound == True:
                                 #stateQueue[0].addTransition(state)
@@ -142,8 +142,11 @@ class graph:
                     #print(f"popping: {newState.programCounters[(newState.programCounters.index(thread))]} from {newState.label}")
                     #print(f"with thread counter: {thread['counter']} on {thread['name']}")
                     newState.programCounters.pop(newState.programCounters.index(thread))
-                    #stateFound = self.find_eq(newState)
+                    stateFound = self.find_eq(newState, stateQueue[0])
+                    if stateFound == True:
+                        self.nameCounter -= 1
                     if stateFound == False:
+                        stateQueue[0].addTransition(newState)
                         stateQueue.append(newState)
                         self.stateArray.append(newState)
                     #for state in self.stateArray:
@@ -155,20 +158,20 @@ class graph:
             #print(len(stateQueue))
             stateQueue.pop(0)
 
-    def find_eq(self, newState):
+    def find_eq(self, newState, currentState):
         stateFound = False
         returnState = None
         for state in self.stateArray:
             if newState == state:
-                print(f"newState: {newState.label}, state: {state.label}")
+                #print(f"newState: {newState.label}, state: {state.label}")
                 returnState = state
                 stateFound = True
+                currentState.addTransition(state)
                 #print(f"state: {state.label}\n{state.symboltable}\n{state.programCounters}")
                 #print(f"newstate: {newState.label}\n{newState.symboltable}\n{newState.programCounters}\n")
                 #print(f"state {state.label} is considered the same as state {newState.label}")
-                if len(newState.ingoing) != 0 and newState.ingoing[0] not in state.ingoing:
-                    print("test")
-                    state.ingoing.append(newState.ingoing[0])
+                #if len(newState.ingoing) != 0:
+                #    state.ingoing.append(newState.ingoing[0])
         return stateFound
 
 a = python_reader.C_Reader('pthread_setting_variables.c')
