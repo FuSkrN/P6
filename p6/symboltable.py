@@ -25,7 +25,6 @@ class Symboltable:
     def update_symbol_value(self, symbolDict):
         #update the value of a symbol in the symboltable
         seperator = "."
-
         varFound = False
         while varFound == False:
             for sUpdate in self.symboltable:
@@ -54,20 +53,25 @@ class Symboltable:
             #something went wrong
             pass
 
+
     def retrieve_symbol(self, dictionary):
         seperator = "."
-        while True:
+        test = True
+        while test == True:
             for scope in self.symboltable:
                 if scope['scope'] == dictionary['scope']:
                     for var in scope['varList']:
                         if var['name'] == dictionary['name']:
                             return var['value']
+                elif dictionary['scope'] == "":
+                    return
 
             tempName = dictionary['scope'].split(seperator) 
             tempName.pop()
             dictionary['scope'] = seperator.join(tempName)
             if len(dictionary['scope'].split(seperator)) == 0:
                 return
+
         
 
 

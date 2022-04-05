@@ -144,5 +144,3 @@ class C_Reader:
 #reader.get_scopes(reader.file)
 #for r in reader.result:
 #    print(r)
-#reader.print_functions()
-#reader.print_variables()
