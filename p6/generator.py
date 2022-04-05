@@ -85,32 +85,51 @@ class graph:
 
 
     def simulate_new_states(self, currentState):
-        #for each programcounter in currentState, simulate the next child states
+        """Creates new states to be appended to the State array in the correct manner. 
+        If a state node already exists, a transition is instead made from its parents to the existing node.
+        Takes an input state node to be added to the state array graph. Outputs (not returns) an updated state array graph."""
         stateQueue = [currentState]
         while len(stateQueue) != 0:
+            
+            #for each programcounter in currentState, simulate the next child states.
             for thread in stateQueue[0].programCounters:
+
+                #Flag used to identify existing states, which are not to be appended but rather updated.
                 stateFound = False
-                #find and execute the variable then append the new state to the list
+
+                #Flag used to identify if an existing thread (in programCounters) is still running.
                 varFound = False
-                #looking through the variables to find the correct scope
+
+                #Looking through the variables to find the correct scope
                 for variable in self.variables:
                     splitScopeName = variable['scope'].split(".")
-                    #identify the correct function
+
+                    #Identify whether a thread function is equivalent to the current scope. If true, then it is within the same scope.
                     if thread['function'] == splitScopeName[-1]:
-                        #identify the correct line within the variables list
+
+                        #If the function is a match, check whether their line counters are equivalent (correct line).
                         if thread['counter'] == variable['lineCounter']:
-                            #make new state with the found variable and an increased thread['counter']
+
+                            #Make new state with the found variable and an increased thread counter (thread['counter'])
+                            #A variable is any input type, such as declaration, assignment or a function.
                             newState = graph_rep.state('s' + str(self.nameCounter), stateQueue[0].symboltable, stateQueue[0].programCounters)
                             self.nameCounter += 1
 
-                            # Append the new variables of the current state to a new state
+                            #Check whether the variable in question is a function.
                             if variable['commandType'] == 'functionCall':
+
+                                #Check whether said function call is a pthread type (create or join).
                                 pthreadReturn = self.find_pthread(variable)
+
+                                #If a pthread_create function call is read, create a new thread and add it to the state's new programcounters list.
                                 if pthreadReturn['type'] == "create":
-                                    test = pthreadReturn['thread']
-                                    newState.programCounters.append(test)
+                                    newThread = pthreadReturn['thread']
+                                    newState.programCounters.append(newThread)
                                 elif pthreadReturn['type'] == "join":
                                     foundThread = False
+
+                                    #If a pthread_join function call is read in an existing thread/state, 
+                                    #revert and do not add the temporary (new) state.
                                     for pc in newState.programCounters:
                                         if pthreadReturn['threadName'] == pc['name']:
                                             foundThread = True
@@ -118,31 +137,44 @@ class graph:
                                         self.nameCounter -= 1
                                         varFound = True
                                         break
+
+                            #If the variable is not a function call, add it directly to the new state's list of variables (Symbol table).
                             else:
                                 newState.addVar(variable.copy())
+
+                            #Loop through the programCounters list for a state and check if the current variable has been executed.
+                            #Once done, increment the corresponding thread's program counter.
+                            #Equivalent to reading a line in a thread and incrementing the counter by one.
                             i = 0
                             for i in range(0, len(newState.programCounters)):
                                 if thread['function'] == newState.programCounters[i]['function']:
                                     newState.programCounters[i]['counter'] += 1
+                            
+                            #Flag to a mark that a variable has been found.
                             varFound = True
+
+                            #Check if the current state is a duplicate of any state in the state array.
                             stateFound = self.find_eq(newState, stateQueue[0])
                             if stateFound == True:
                                 self.nameCounter -= 1
                             if stateFound == False:
-                                # Add a transition to the new state from current state
+
+                                #Add a transition to the new state from its working parent state.
+                                #The 1st queue element (stateQueue[0]) is the parent node.
                                 stateQueue[0].addTransition(newState)
 
-                                # Update current state to the new state and append to state array
+                                #Append the new state to the state queue and the state array.
                                 stateQueue.append(newState)
                                 self.stateArray.append(newState)
 
-                    #use offset to find corresponding line and create a new state from it
-                    #new state should have the programcounter for a given function increased by one
-                    #TODO: lineCounter needs correct implementation in python_reader
+                #Once a thread finishes as no variable is read, 
+                #its corresponding state array node is created and the program counter is removed.
                 if varFound == False:
                     newState = graph_rep.state('s' + str(self.nameCounter), stateQueue[0].symboltable, stateQueue[0].programCounters)
                     self.nameCounter += 1
                     newState.programCounters.pop(newState.programCounters.index(thread))
+
+                    #At the end, check if the finished thread already exists.
                     stateFound = self.find_eq(newState, stateQueue[0])
                     if stateFound == True:
                         self.nameCounter -= 1
@@ -150,6 +182,8 @@ class graph:
                         stateQueue[0].addTransition(newState)
                         stateQueue.append(newState)
                         self.stateArray.append(newState)
+
+            #Pop the first state in the state queue in a FIFO manner.
             stateQueue.pop(0)
 
     def find_eq(self, newState, currentState):
