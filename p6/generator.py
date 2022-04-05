@@ -4,6 +4,7 @@ import symboltable
 import copy
 
 class graph:
+    """Class to define a graph consisting of states. Input is a list of variable dictionaries"""
     def __init__(self, variables):
         self.variables = copy.deepcopy(variables)
         self.stateArray = []
@@ -20,6 +21,7 @@ class graph:
 
         # For each tuple in the list of dictionaries
         # Create a new state, append the counter
+        # Once a pthread_create has been found, call simulate_new_states, which will generate all subsequent states
         for var in self.variables:
             #initialize the new state. label is s + 1 and symboltable is copied from previous state
             newState = graph_rep.state('s' + str(self.nameCounter), currentState.symboltable, currentState.programCounters)
@@ -29,16 +31,20 @@ class graph:
                         "function": "main",
                         "counter": 0}
                 newState.programCounters.append(thread)
+            # Check if the variable is a call to pthread_create, and prepares to call simulate_new_states if it is found
             if var['commandType'] == "functionCall":
-                pthreadReturn = self.find_pthread(var, newState)
+                pthreadReturn = self.find_pthread(var)
                 if pthreadReturn['type'] == "create":
                     pthread = pthreadReturn['thread']
+                    # Appends the thread to programCounters of the new state
                     newState.programCounters.append(pthread)
                     foundFirstThread = True
 
             else:
                 # Append the new variables of the current state to a new state
                 newState.addVar(var)
+
+            # Increments the programCounter by one, to represent that the next statement in the program has been executed
             i = 0
             for i in range(0, len(newState.programCounters)):
                 if thread['function'] == newState.programCounters[i]['function']:
@@ -50,14 +56,18 @@ class graph:
             # Update current state to the new state and append to state array
             currentState = newState
             self.stateArray.append(currentState)
+
+            # If pthread_create was found, break out of the for each loop and run simulate_new_states
             if foundFirstThread == True:
                 break
+
         #do something once the first pthread_create has been found
         self.simulate_new_states(currentState)
 
 # String compares the name of a dictionary (assumed functionCall) with pthread matches
 # Figures out whether the function is a pthread_create or pthread_join call, otherwise returns null
-    def find_pthread(self, dictionary, state):
+    def find_pthread(self, dictionary):
+        """Checks if an input dictionary is a pthread_create or pthread_join function. It takes a function dictionary as input and outputs a dictionary containing: type (create or join), threadName and a thread dictionary"""
         dictValueSplit = dictionary['value'].split(",")
         x = dictionary["name"]
         if x == "pthread_create":
@@ -78,7 +88,6 @@ class graph:
         #for each programcounter in currentState, simulate the next child states
         stateQueue = [currentState]
         while len(stateQueue) != 0:
-            print(f"----------\nstateQueue.label: {stateQueue[0].label}, programCounters: {stateQueue[0].programCounters}")
             for thread in stateQueue[0].programCounters:
                 stateFound = False
                 #find and execute the variable then append the new state to the list
@@ -96,7 +105,7 @@ class graph:
 
                             # Append the new variables of the current state to a new state
                             if variable['commandType'] == 'functionCall':
-                                pthreadReturn = self.find_pthread(variable, newState)
+                                pthreadReturn = self.find_pthread(variable)
                                 if pthreadReturn['type'] == "create":
                                     test = pthreadReturn['thread']
                                     newState.programCounters.append(test)
@@ -111,18 +120,13 @@ class graph:
                                         break
                             else:
                                 newState.addVar(variable.copy())
-                                #for counter in newState.programCounters:
                             i = 0
                             for i in range(0, len(newState.programCounters)):
                                 if thread['function'] == newState.programCounters[i]['function']:
                                     newState.programCounters[i]['counter'] += 1
-                            print(f"----------newState.label: {newState.label}, programCounters: {newState.programCounters}")
-                            print(f"newState.symboltable: {newState.symboltable.symboltable}")
                             varFound = True
                             stateFound = self.find_eq(newState, stateQueue[0])
-                            print(stateFound)
                             if stateFound == True:
-                                #stateQueue[0].addTransition(state)
                                 self.nameCounter -= 1
                             if stateFound == False:
                                 # Add a transition to the new state from current state
@@ -138,9 +142,6 @@ class graph:
                 if varFound == False:
                     newState = graph_rep.state('s' + str(self.nameCounter), stateQueue[0].symboltable, stateQueue[0].programCounters)
                     self.nameCounter += 1
-                    #stateQueue[0].programCounters.pop(stateQueue[0].programCounters.index(thread))
-                    #print(f"popping: {newState.programCounters[(newState.programCounters.index(thread))]} from {newState.label}")
-                    #print(f"with thread counter: {thread['counter']} on {thread['name']}")
                     newState.programCounters.pop(newState.programCounters.index(thread))
                     stateFound = self.find_eq(newState, stateQueue[0])
                     if stateFound == True:
@@ -149,29 +150,16 @@ class graph:
                         stateQueue[0].addTransition(newState)
                         stateQueue.append(newState)
                         self.stateArray.append(newState)
-                    #for state in self.stateArray:
-                    #    if state.label == 
-                        #if state.label == stateQueue[0].label:
-                        #    self.stateArray[self.stateArray.index(state)].programCounters = stateQueue[0].programCounters
-            #print(f"popping {stateQueue[0].label}, {stateQueue[0].programCounters}\n\n")
-            #if len(stateQueue[0].programCounters) == 0:
-            #print(len(stateQueue))
             stateQueue.pop(0)
 
     def find_eq(self, newState, currentState):
+        """Checks if a newState already exists, and if it does, adds a transition from the parent of newState to the duplicate state. Inputs are (newState, parentState)"""
         stateFound = False
-        returnState = None
         for state in self.stateArray:
             if newState == state:
-                #print(f"newState: {newState.label}, state: {state.label}")
                 returnState = state
                 stateFound = True
                 currentState.addTransition(state)
-                #print(f"state: {state.label}\n{state.symboltable}\n{state.programCounters}")
-                #print(f"newstate: {newState.label}\n{newState.symboltable}\n{newState.programCounters}\n")
-                #print(f"state {state.label} is considered the same as state {newState.label}")
-                #if len(newState.ingoing) != 0:
-                #    state.ingoing.append(newState.ingoing[0])
         return stateFound
 
 a = python_reader.C_Reader('pthread_setting_variables.c')

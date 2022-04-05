@@ -41,19 +41,9 @@ class state:
             for opc in other.programCounters:
                 if ppc['name'] == opc['name'] and ppc['counter'] == opc['counter']:
                     counter += 1
-        #print(f"self.symboltable: {self.symboltable.symboltable}")
-        #print(f"other.symboltable: {other.symboltable.symboltable}")
-        #print(counter, len(self.programCounters), len(other.programCounters))
         if counter == len(self.programCounters) and counter == len(other.programCounters):
             eqProgramCounters = True
-        #print(f"self.label: {self.label}, other.label: {other.label}") 
-        #print(f"self.programCounters: {self.programCounters}\nother.programCounters: {other.programCounters}")
-        #print(eqSymboltable, eqProgramCounters)
         return eqSymboltable and eqProgramCounters
-        #if self.symboltable.symboltable.sort() == other.symboltable.symboltable.sort() and self.programCounters.sort() == other.programCounters.sort():
-        #    return True
-        #elif self.symboltable.symboltable.sort() != other.symboltable.symboltable.sort and self.programCounters.sort() != other.programCounters.sort():
-        #    return False
 
 class transition:
     def __init__(self, origin, destination):
