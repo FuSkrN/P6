@@ -196,18 +196,17 @@ class graph:
                 currentState.addTransition(state)
         return stateFound
 
-a = python_reader.C_Reader('pthread_setting_variables.c')
-a.get_scopes(a.file)
-b = graph(a.result)
+#a.get_scopes(a.file)
+#b = graph(a.result)
 #for r in a.result:
 #    print(r)
-for x in b.stateArray:
-    print(f"stateName: {x.label}")
-    print(f"programCounters: {x.programCounters:}")
-    for p in x.symboltable.symboltable:
-        print(p)
-    for y in x.ingoing:
-        print(f"ingoing: {y.label}")
-    for z in x.outgoing:
-        print(f"outgoing: {z.destination.label}")
-    print("\n")
+#for x in b.stateArray:
+#    print(f"stateName: {x.label}")
+#    print(f"programCounters: {x.programCounters:}")
+#    for p in x.symboltable.symboltable:
+#        print(p)
+#    for y in x.ingoing:
+#        print(f"ingoing: {y.label}")
+#    for z in x.outgoing:
+#        print(f"outgoing: {z.destination.label}")
+#    print("\n")

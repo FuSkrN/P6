@@ -15,7 +15,9 @@ class state:
     
     #add transition from current state to another state
     def addTransition(self, state):
-        self.outgoing.append(transition(self, state))
+        state.ingoing.append(self)
+        self.outgoing.append(state)
+        
 
     def addVar(self, vardict):
         search_replace.replaceVars(vardict, self.symboltable)
@@ -44,6 +46,23 @@ class state:
         if counter == len(self.programCounters) and counter == len(other.programCounters):
             eqProgramCounters = True
         return eqSymboltable and eqProgramCounters
+
+    def link_ingoing_outgoing(self):
+        if len(self.ingoing) == 1 and len(self.outgoing) == 1:
+            self.ingoing[0].addTransition(self.outgoing[0])
+
+            ingoingState = self.ingoing[0]
+            outgoingState = self.outgoing[0]
+            for state in ingoingState.outgoing:
+                if state == self:
+                    ingoingState.outgoing.pop(ingoingState.outgoing.index(state))
+            
+            for state in outgoingState.ingoing:
+                if state == self:
+                    outgoingState.ingoing.pop(outgoingState.ingoing.index(state))
+            
+            return True
+        return False
 
 class transition:
     def __init__(self, origin, destination):
