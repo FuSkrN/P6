@@ -76,15 +76,19 @@ class state:
         If a sequence of nodes X, Y and Z are connected, and X and Z are Y's only parent and child state, respectively, Y is omitted."""
         
         #If the node only has one ingoing (parent) and child (outgoing) state.
+        #Create a transition directly from the parent to the child state.
         if len(self.ingoing) == 1 and len(self.outgoing) == 1:
             self.ingoing[0].addTransition(self.outgoing[0])
 
             ingoingState = self.ingoing[0]
             outgoingState = self.outgoing[0]
+
+            #If the parents child note is the current state itself, remove it from the parent state's child nodes list (the only one).
             for state in ingoingState.outgoing:
                 if state == self:
                     ingoingState.outgoing.pop(ingoingState.outgoing.index(state))
             
+            #Same procedure as above, but for current node's child state. Remove it from the parent nodes list of the current state child.
             for state in outgoingState.ingoing:
                 if state == self:
                     outgoingState.ingoing.pop(outgoingState.ingoing.index(state))
@@ -92,8 +96,10 @@ class state:
             return True
         return False
 
+#The transition class used to represent edges in the graph.
 class transition:
     def __init__(self, origin, destination):
+        """Initializer function: A transition origin and destination are states. Both are connected by a transition."""
         self.origin = origin
         self.destination = destination
         destination.ingoing.append(origin)

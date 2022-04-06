@@ -91,7 +91,7 @@ class graph:
         stateQueue = [currentState]
         while len(stateQueue) != 0:
             
-            #for each programcounter in currentState, simulate the next child states.
+            #For each programcounter in currentState, simulate the next child states.
             for thread in stateQueue[0].programCounters:
 
                 #Flag used to identify existing states, which are not to be appended but rather updated.
@@ -187,14 +187,21 @@ class graph:
             stateQueue.pop(0)
 
     def find_eq(self, newState, currentState):
-        """Checks if a newState already exists, and if it does, adds a transition from the parent of newState to the duplicate state. Inputs are (newState, parentState)"""
+        """Checks if a newState already exists, and if it does, adds a transition from the parent of newState to the duplicate state. 
+        Inputs are (newState, parentState)"""
         stateFound = False
         for state in self.stateArray:
+
+            #Uses __eq__ to check whether the newState is equal to the current state.
             if newState == state:
                 returnState = state
                 stateFound = True
+
+                #Add a transition from the parent of newState to the duplicate state.
                 currentState.addTransition(state)
         return stateFound
+
+# DEBUGGING PURPOSES - DO NOT REMOVE
 
 #a.get_scopes(a.file)
 #b = graph(a.result)
