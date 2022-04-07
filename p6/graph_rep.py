@@ -80,6 +80,9 @@ class state:
         if len(self.ingoing) == 1 and len(self.outgoing) == 1:
             self.ingoing[0].addTransition(self.outgoing[0])
 
+            print(self.ingoing[0].label)
+            print(self.outgoing[0].label)
+
             ingoingState = self.ingoing[0]
             outgoingState = self.outgoing[0]
 
