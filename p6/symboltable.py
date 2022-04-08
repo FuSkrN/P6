@@ -31,7 +31,6 @@ class Symboltable:
 
     def update_symbol_value(self, symbolDict):
         """Updates the value of a symbol in the symbol table with the given parameter symbolDict."""
-
         #Each scope level is separated by a seperator (.)
         seperator = "."
         

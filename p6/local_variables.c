@@ -6,21 +6,21 @@ void *func();
 
 int main(void){
     pthread_t thread1;
-    pthread thread2;
+    pthread_t thread2;
     int arg1[] = {};
     
-    pthread_create(&thread1, NULL, func, (void*) arg1);
-    pthread_create(&thread2, NULL, func, (void*) arg1);
+    pthread_create(&thread1, NULL, func1, (void*) arg1);
+    pthread_create(&thread2, NULL, func2, (void*) arg1);
 
     pthread_join(thread1, NULL);
     pthread_join(thread2, NULL);
 }
 
-void *func(){
+void *func1(){
     int a = 0;
     int b = 10;
-    double x = 0.5;
-    y = 3.14;
+    long x = 5;
+    long y = 3;
     
     //random math
     a = a + 7;
@@ -30,5 +30,21 @@ void *func(){
     b = b * a;
 
     x = x * y;
-    y = x* x;
+    y = x * x;
+}
+void *func2(){
+    int a = 0;
+    int b = 10;
+    long x = 5;
+    long y = 3;
+    
+    //random math
+    a = a + 7;
+    b = b + a;
+    a = b - a;
+    a = a + a;
+    b = b * a;
+
+    x = x * y;
+    y = x * x;
 }
