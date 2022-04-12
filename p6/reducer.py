@@ -5,7 +5,7 @@ import python_reader
 class reducer:
     """A collection (class) of methods used in graph reduction."""
     def __init__(self, stateArray):
-        self.stateArray = stateArray.copy()
+        self.stateArray = stateArray
     
     def reduce_sequence(self):
         """Implements the function link_ingoing_outgoing using a state queue."""
