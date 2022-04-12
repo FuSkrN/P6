@@ -95,8 +95,6 @@ class graph:
             
             #For each programcounter in currentState, simulate the next child states.
             for thread in stateQueue[0].programCounters:
-                print(stateQueue[0].label)
-                print(stateQueue[0].programCounters)
 
                 #Flag used to identify existing states, which are not to be appended but rather updated.
                 stateFound = False
@@ -143,7 +141,18 @@ class graph:
 
                             #If the variable is not a function call, add it directly to the new state's list of variables (Symbol table).
                             else:
-                                newState.addVar(variable.copy())
+                                #tempVar is used to change the scope name, to allow for multiple calls of the same function.
+                                tempVar = variable.copy()
+                                tempVarScopeSplit = tempVar['scope'].split(".")
+                                tempVarScopeSplit.pop()
+                                tempVarScopeSplit.append(thread['function'])
+                                tempVarScope = tempVarScopeSplit[0]
+
+                                for scope in tempVarScopeSplit:
+                                    tempVarScope = tempVarScope + '.' + scope
+                                tempVar['scope'] = tempVarScope
+
+                                newState.addVar(tempVar)
 
                             #Loop through the programCounters list for a state and check if the current variable has been executed.
                             #Once done, increment the corresponding thread's program counter.
@@ -173,14 +182,9 @@ class graph:
                 #Once a thread finishes as no variable is read, 
                 #its corresponding state array node is created and the program counter is removed.
                 if varFound == False:
-                    print("!!!!!!!!!!!!!!!1")
                     newState = graph_rep.state('s' + str(self.nameCounter), stateQueue[0].symboltable, stateQueue[0].programCounters)
                     self.nameCounter += 1
-                    print(f"thread: {thread}")
-                    print(f"programCounters: {newState.programCounters}")
-                    print(f"index: {newState.programCounters.index(thread)}")
                     newState.programCounters.pop(newState.programCounters.index(thread))
-                    print(f"programCounters: {newState.programCounters}")
 
                     #At the end, check if the finished thread already exists.
                     stateFound = self.find_eq(newState, stateQueue[0])

@@ -13,8 +13,6 @@ def start(args):
     else:
         reader = python_reader.C_Reader(args[1])
         reader.get_scopes(reader.file)
-        for r in reader.result:
-            print(r)
         graph = generator.graph(reader.result)
         red = reducer.reducer(graph.stateArray)
         
