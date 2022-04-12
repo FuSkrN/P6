@@ -22,6 +22,24 @@ class reducer:
             #Remove the state from the state queue.
             stateQueue.pop(0)
 
+    def reduce_local_varsplit(self, stateArray):
+        stateQueue = self.stateArray.copy()
+        while len(stateQueue) != 0:
+            parentState = stateQueue[0]
+            if len(parentstate.outgoing) > 1:
+                for childState in parentState.outgoing:
+                    parentGlobalVars = parentState.symboltable.find_global_vars()
+                    childGlobalVars = childState.symboltable.find_global_vars()
+                    if parentGlobalVars == childGlobalVars:
+                        resultFlag = childState.link_ingoing_outgoing()
+
+            # If True, remove the reduced state from the state array.
+            if resultFlag:
+                self.stateArray.pop(self.stateArray.index(stateQueue[0]))
+            
+            #Remove the state from the state queue.
+            stateQueue.pop(0)       
+
 # Read and parse a C file, and then generate its resulting state array graph.
 #a = python_reader.C_Reader('pthread_setting_variables.c')
 #a.get_scopes(a.file)

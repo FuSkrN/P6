@@ -105,6 +105,9 @@ class Symboltable:
             if len(dictionary['scope'].split(seperator)) == 0:
                 return
 
-        
-
-
+    def find_global_vars(self):
+        returnList = []
+        for var in self.symboltable[0]['varList']:
+            if var['scope'] == "global":
+                returnList.append(var)
+        return returnList

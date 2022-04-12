@@ -43,7 +43,7 @@ class graph:
             else:
                 # Append the new variables of the current state to a new state
                 newState.addVar(var)
-
+            
             # Increments the programCounter by one, to represent that the next statement in the program has been executed
             i = 0
             for i in range(0, len(newState.programCounters)):
@@ -63,6 +63,7 @@ class graph:
 
         #do something once the first pthread_create has been found
         self.simulate_new_states(currentState)
+        
 
 # String compares the name of a dictionary (assumed functionCall) with pthread matches
 # Figures out whether the function is a pthread_create or pthread_join call, otherwise returns null
@@ -202,9 +203,13 @@ class graph:
         return stateFound
 
 # DEBUGGING PURPOSES - DO NOT REMOVE
+a = python_reader.C_Reader("pthread_setting_variables.c")
 
-#a.get_scopes(a.file)
-#b = graph(a.result)
+a.get_scopes(a.file)
+b = graph(a.result)
+for state in b.stateArray:
+    state.symboltable.find_global_vars()
+
 #for r in a.result:
 #    print(r)
 #for x in b.stateArray:

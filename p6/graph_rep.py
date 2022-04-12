@@ -97,6 +97,24 @@ class state:
                     outgoingState.ingoing.pop(outgoingState.ingoing.index(state))
             
             return True
+        if len(self.ingoing) == 1 and len(self.outgoing) > 0:
+            #same variant as above, however instead of 1 outgoing state there is multiple states to append. Loop over the outgoing states of the current state and append the states to the ingoing
+            for state in self.outgoing:
+                self.ingoing[0].addTransition(state)
+
+            ingoingState = self.ingoing[0]
+             #If the parents child note is the current state itself, remove it from the parent state's child nodes list (the only one).
+            for state in ingoingState.outgoing:
+                if state == self:
+                    ingoingState.outgoing.pop(ingoingState.outgoing.index(state))
+            
+            #Same procedure as above, but for current node's child state. Remove it from the parent nodes list of the current state child.
+            for outgoingState in self.outgoing:
+                for state in outgoingState.ingoing:
+                    if state == self:
+                        outgoingState.ingoing.pop(outgoingState.ingoing.index(state))
+            
+            
         return False
 
 #The transition class used to represent edges in the graph.
