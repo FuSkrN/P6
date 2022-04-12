@@ -8,6 +8,7 @@ class graph:
     def __init__(self, variables):
         self.variables = copy.deepcopy(variables)
         self.stateArray = []
+        self.funcNameCounter = 0
 
         # Define starting state (s0)
         self.startState = graph_rep.state('s0', symboltable.Symboltable(), [])
@@ -72,8 +73,9 @@ class graph:
         x = dictionary["name"]
         if x == "pthread_create":
             thread = {"name": dictValueSplit[0].lstrip("&").strip(), 
-                        "function": dictValueSplit[2].strip(),
+                    "function": dictValueSplit[2].strip() + "(" + str(self.funcNameCounter) + ")",
                         "counter": 0}
+            self.funcNameCounter += 1
 
             return {"type": "create","threadName": thread["name"], "thread": thread}
 
@@ -93,6 +95,8 @@ class graph:
             
             #For each programcounter in currentState, simulate the next child states.
             for thread in stateQueue[0].programCounters:
+                print(stateQueue[0].label)
+                print(stateQueue[0].programCounters)
 
                 #Flag used to identify existing states, which are not to be appended but rather updated.
                 stateFound = False
@@ -103,9 +107,8 @@ class graph:
                 #Looking through the variables to find the correct scope
                 for variable in self.variables:
                     splitScopeName = variable['scope'].split(".")
-
                     #Identify whether a thread function is equivalent to the current scope. If true, then it is within the same scope.
-                    if thread['function'] == splitScopeName[-1]:
+                    if thread['function'].split("(")[0] == splitScopeName[-1]:
 
                         #If the function is a match, check whether their line counters are equivalent (correct line).
                         if thread['counter'] == variable['lineCounter']:
@@ -170,9 +173,14 @@ class graph:
                 #Once a thread finishes as no variable is read, 
                 #its corresponding state array node is created and the program counter is removed.
                 if varFound == False:
+                    print("!!!!!!!!!!!!!!!1")
                     newState = graph_rep.state('s' + str(self.nameCounter), stateQueue[0].symboltable, stateQueue[0].programCounters)
                     self.nameCounter += 1
+                    print(f"thread: {thread}")
+                    print(f"programCounters: {newState.programCounters}")
+                    print(f"index: {newState.programCounters.index(thread)}")
                     newState.programCounters.pop(newState.programCounters.index(thread))
+                    print(f"programCounters: {newState.programCounters}")
 
                     #At the end, check if the finished thread already exists.
                     stateFound = self.find_eq(newState, stateQueue[0])

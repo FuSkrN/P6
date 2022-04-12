@@ -28,6 +28,7 @@ class state:
     def addVar(self, vardict):
         """A function that replaces or updates a variable in a symbol table. Uses regex tokens to filter input (vardict)."""
         search_replace.replaceVars(vardict, self.symboltable)
+        print(f"vardict: {vardict}")
 
     def isEndpoint(self):
         """An internal function that checks whether a state is an end state. Checks whether it has no children."""
