@@ -22,9 +22,11 @@ class C_Reader:
         self.variablePattern = re.compile('^\s*(([a-zA-Z0-9]+)(\[[0-9]*\])?)*() *((=|\+=|\+\+|\+|\*=|\*|-=|--|-|\\=|\\|\%=|\%) *([^;\n]* *);)\s*$')
         self.prototypePattern = re.compile('^\s*(int|long|pthread_t|void|char) +\**(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\));$')
         self.functionPattern = re.compile('^\s*(int|long|pthread_t|void) +\**(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\)).*$')
-        self.forPattern = re.compile('for\(.*\).*')
+        self.forPattern = re.compile('for\s*\((.*)\).*')
         self.ifElsePattern = re.compile('^if\s*\((.*?)\)\s*((.|\n)*){(.*?)((.|\n)*)}((.|\n)*)(\s*(else|else\s+if\s*\((.*?)\))\s*{(.*?)})*$')
         self.functionCallPattern = re.compile('\s*((\-)*[_a-zA-Z][a-zA-Z0-9_\-]*)\((.*?)\)();')
+        self.booleanPattern = re.compile('\s*([a-zA-Z0-9]+)\s*(==|<=|>=|<|>|!=)\s*([a-zA-Z0-9]+)\s*')
+        self.numberPattern = re.compile('[0-9]*')
 
     def get_scopes(self, scopeText):
         """A function that extracts the contents of a scope. 
@@ -56,7 +58,9 @@ class C_Reader:
                 searchResult = re.search(self.forPattern, line)
 
                 if searchResult != None and counter == 0:
-                    self.scopeName.append('.for')
+                    self.scopeName.append('.for' + '(' + str(self.forNameCounter) + ')')
+                    self.forNameCounter += 1
+                    self.handle_for(searchResult)
                     isInScope = True
                 else:
                     #Checks if the line is a if-else logic statement.
@@ -167,7 +171,36 @@ class C_Reader:
                         "commandType": "declaration"}
         else:
             return None
+    def handle_for(self, forParam):
+        splitResult = forParam.group(1).split(';')
+        variableName = ''
+        iterationCounter = 0
+        variableStartValue = ''
+        booleanDelta = 0
+        searchResult = re.search(self.declarationPattern, splitResult[0] + ';')
+        if searchResult != None:
+            variableName = searchResult.group(4)
+            variableStartValue = searchResult.group(8)
+        else:
+            searchResult = re.search(self.assignmentPattern, splitResult[0] + ';')
+            if searchResult != None:
+                variableName = searchResult.group(2)
+                variableStartValue = searchResult.group(7)
+            else:
+                print("try to compile the code, i swear it wont compile")
+        booleanResult = re.search(self.booleanPattern, splitResult[1])
+        for value in booleanResult.groups():
+            
+            if value.isnumeric():
+                booleanDelta = abs(int(variableStartValue) - int(value))
+        if splitResult[2].strip() == variableName + '++' or splitResult[2].strip() == variableName + '--':
+            iterationCounter = booleanDelta
+        else:
+            numberResult = re.search(self.numberPattern, splitResult[2])
+            if numberResult != None:
+                iterationCounter = booleanDelta/int(numberResult.group())
 
+        return [variableName, iterationCounter]
 
 # Debugging
 #reader = C_Reader("pthread_setting_variables.c")

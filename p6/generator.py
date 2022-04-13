@@ -93,7 +93,7 @@ class graph:
         Takes an input state node to be added to the state array graph. Outputs (not returns) an updated state array graph."""
         stateQueue = [currentState]
         while len(stateQueue) != 0:
-            
+            print(stateQueue[0].label)
             #For each programcounter in currentState, simulate the next child states.
             for thread in stateQueue[0].programCounters:
 
@@ -150,7 +150,8 @@ class graph:
                                 tempVarScope = tempVarScopeSplit[0]
 
                                 for scope in tempVarScopeSplit:
-                                    tempVarScope = tempVarScope + '.' + scope
+                                    if scope != 'global':
+                                        tempVarScope = tempVarScope + '.' + scope
                                 tempVar['scope'] = tempVarScope
 
                                 newState.addVar(tempVar)

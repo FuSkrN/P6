@@ -32,19 +32,4 @@ void *func1(){
     x = x * y;
     y = x * x;
 }
-void *func2(){
-    int a = 0;
-    int b = 10;
-    long x = 5;
-    long y = 3;
-    
-    //random math
-    a = a + 7;
-    b = b + a;
-    a = b - a;
-    a = a + a;
-    b = b * a;
 
-    x = x * y;
-    y = x * x;
-}

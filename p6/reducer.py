@@ -22,11 +22,12 @@ class reducer:
             #Remove the state from the state queue.
             stateQueue.pop(0)
 
-    def reduce_local_varsplit(self, stateArray):
+    def reduce_local_varsplit(self):
         stateQueue = self.stateArray.copy()
+        resultFlag = False
         while len(stateQueue) != 0:
             parentState = stateQueue[0]
-            if len(parentstate.outgoing) > 1:
+            if len(parentState.outgoing) > 1:
                 for childState in parentState.outgoing:
                     parentGlobalVars = parentState.symboltable.find_global_vars()
                     childGlobalVars = childState.symboltable.find_global_vars()

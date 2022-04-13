@@ -19,10 +19,13 @@ def start(args):
         if len(args) == 3:
             outputName = args[1] + "." + args[2] + ".graph.txt"
             if args[2] == "-ra" or args[2] == "-r1":
-                print(args[2])
+                print(f"performing -r1 on a set of size {len(graph.stateArray)}")
                 red.reduce_sequence()
+                print(f"Resulting size is {len(graph.stateArray)}")
             if args[2] == "-ra" or args[2] == "-r2":
-                pass
+                print(f"performing -r2 on a set of size {len(graph.stateArray)}")
+                red.reduce_local_varsplit()
+                print(f"Resulting size is {len(graph.stateArray)}")
         else:
             outputName = args[1] + ".graph.txt"
 

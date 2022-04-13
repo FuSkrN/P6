@@ -35,7 +35,7 @@ int main(){
 void *sumNumbers(void *args){
     int sum = 0;
     int *arr = (int *) args;
-    for(int x = arr[0]; x <= arr[1]; x++){
+    for(int x = 0; x <= 1000; x++){
         sum += x;
     }
     printf("totalsum: %ld\n", &totalSum);
