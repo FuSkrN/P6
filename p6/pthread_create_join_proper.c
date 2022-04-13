@@ -6,7 +6,7 @@ int x = 0;
 int y = 0;
 
 void *modifyX();
-void modifyY();
+void *modifyY();
 
 int main() {
     pthread_t thread1;
@@ -17,11 +17,11 @@ int main() {
     pthread_create(&thread1, NULL, modifyX, (void*) elist);
     pthread_join(thread1, NULL);
 
-    pthread_create(&thread2, NULL, modifyX, (void*) elist);
+    pthread_create(&thread2, NULL, modifyY, (void*) elist);
     pthread_join(thread2, NULL);
 
-    print("x: %d\n", x);
-    print("y: %d\n", y);
+    printf("x: %d\n", x);
+    printf("y: %d\n", y);
 
     return 0;
 }
