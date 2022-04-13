@@ -5,6 +5,9 @@ class C_Reader:
     """Lexer and parser for a C program. Returns a list of scopes and corresponding variables."""
     def __init__(self, fileName):
         self.fileName = fileName
+        self.forNameCounter = 0
+        self.ifNameCounter = 0
+        self.ifElseNameCounter = 0
 
         #Opens a filepath and reads its contents line by line, split by newline characters.
         with open(self.fileName) as file:

@@ -8,6 +8,7 @@ class graph:
     def __init__(self, variables):
         self.variables = copy.deepcopy(variables)
         self.stateArray = []
+        self.funcNameCounter = 0
 
         # Define starting state (s0)
         self.startState = graph_rep.state('s0', symboltable.Symboltable(), [])
@@ -73,8 +74,9 @@ class graph:
         x = dictionary["name"]
         if x == "pthread_create":
             thread = {"name": dictValueSplit[0].lstrip("&").strip(), 
-                        "function": dictValueSplit[2].strip(),
+                    "function": dictValueSplit[2].strip() + "(" + str(self.funcNameCounter) + ")",
                         "counter": 0}
+            self.funcNameCounter += 1
 
             return {"type": "create","threadName": thread["name"], "thread": thread}
 
@@ -104,9 +106,8 @@ class graph:
                 #Looking through the variables to find the correct scope
                 for variable in self.variables:
                     splitScopeName = variable['scope'].split(".")
-
                     #Identify whether a thread function is equivalent to the current scope. If true, then it is within the same scope.
-                    if thread['function'] == splitScopeName[-1]:
+                    if thread['function'].split("(")[0] == splitScopeName[-1]:
 
                         #If the function is a match, check whether their line counters are equivalent (correct line).
                         if thread['counter'] == variable['lineCounter']:
@@ -141,7 +142,18 @@ class graph:
 
                             #If the variable is not a function call, add it directly to the new state's list of variables (Symbol table).
                             else:
-                                newState.addVar(variable.copy())
+                                #tempVar is used to change the scope name, to allow for multiple calls of the same function.
+                                tempVar = variable.copy()
+                                tempVarScopeSplit = tempVar['scope'].split(".")
+                                tempVarScopeSplit.pop()
+                                tempVarScopeSplit.append(thread['function'])
+                                tempVarScope = tempVarScopeSplit[0]
+
+                                for scope in tempVarScopeSplit:
+                                    tempVarScope = tempVarScope + '.' + scope
+                                tempVar['scope'] = tempVarScope
+
+                                newState.addVar(tempVar)
 
                             #Loop through the programCounters list for a state and check if the current variable has been executed.
                             #Once done, increment the corresponding thread's program counter.

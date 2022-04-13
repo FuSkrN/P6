@@ -82,7 +82,6 @@ class Symboltable:
     def retrieve_symbol(self, dictionary):
         """Retrieves a symbol in the dictionary based on the input variable dictionary."""
         seperator = "."
-
         #Loop until the condition is met.
         while True:
 
