@@ -9,13 +9,7 @@ def findVars(expression):
     variables = re.findall(variableRegex, str(expression))
     return variables
 
-def replaceVars(variabledict, symboltable):
-    """Updates the stored value of a variable in a symbol table with the input variable dictionary."""
-    
-    #Error handling to prevent crashing when passing the dictionary to symboltable.
-    if variabledict['commandType'] == 'functionCall' or variabledict['value'] == None:
-        return
-    
+def replace_vars_without_update(variabledict, symboltable):
     # Finds the parts of a variable expression and saves it as a list.
     varsInExpression = findVars(variabledict['value'])
 
@@ -33,7 +27,19 @@ def replaceVars(variabledict, symboltable):
 
         #Replace the value of the corresponding dictionary.
         variabledict['value'] = variabledict['value'].replace(variable, f"({varVal})")
+        
+    return variabledict
+ 
+
+def replaceVars(variabledict, symboltable):
+    """Updates the stored value of a variable in a symbol table with the input variable dictionary."""
     
+    #Error handling to prevent crashing when passing the dictionary to symboltable.
+    if variabledict['commandType'] == 'functionCall' or variabledict['value'] == None:
+        return
+    
+    variabledict = replace_vars_without_update(variabledict, symboltable)
+
     #Evaluate the expression isn't NULL or empty. Afterwards, update the value.
     if variabledict['value'] != None or variabledict['value'] != "":
         variabledict['value'] = evaluateExpression(variabledict['value'])

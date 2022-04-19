@@ -245,7 +245,7 @@ class C_Reader:
         return [variableName, iterationCounter]
 
 # Debugging
-reader = C_Reader("ifelse.c")
-reader.get_scopes(reader.file)
-for r in reader.result:
-    print(r)
+#reader = C_Reader("ifelse.c")
+#reader.get_scopes(reader.file)
+#for r in reader.result:
+#    print(r)

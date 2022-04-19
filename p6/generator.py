@@ -1,6 +1,7 @@
 import graph_rep
 import python_reader
 import symboltable
+import search_replace
 import copy
 
 class graph:
@@ -86,10 +87,10 @@ class graph:
         else:
             return {"type": "", "threadName": "", "thread": None}
 
-    def check_if_condition(self):
-        """Returns the boolean result of an if condition"""
-        pass
-
+    def check_if_condition(self, condontionalDictionary, symboltable):
+        """Returns the evaluated conditional statement"""
+        conditionalDictionary = search_replace.replace_vars_without_update(conditionalDictionary, symboltable)
+        return search_replace.evaluateExpression(conditionalDictionary['value'])
 
     def simulate_new_states(self, currentState):
         """Creates new states to be appended to the State array in the correct manner. 
@@ -222,10 +223,10 @@ class graph:
 # DEBUGGING PURPOSES - DO NOT REMOVE
 a = python_reader.C_Reader("pthread_setting_variables.c")
 
-a.get_scopes(a.file)
-b = graph(a.result)
-for state in b.stateArray:
-    state.symboltable.find_global_vars()
+#a.get_scopes(a.file)
+#b = graph(a.result)
+#for state in b.stateArray:
+#    state.symboltable.find_global_vars()
 
 #for r in a.result:
 #    print(r)
