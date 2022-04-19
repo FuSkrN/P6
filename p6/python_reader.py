@@ -23,7 +23,9 @@ class C_Reader:
         self.prototypePattern = re.compile('^\s*(int|long|pthread_t|void|char) +\**(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\));$')
         self.functionPattern = re.compile('^\s*(int|long|pthread_t|void) +\**(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\)).*$')
         self.forPattern = re.compile('for\s*\((.*)\).*')
-        self.ifElsePattern = re.compile('^if\s*\((.*?)\)\s*((.|\n)*){(.*?)((.|\n)*)}((.|\n)*)(\s*(else|else\s+if\s*\((.*?)\))\s*{(.*?)})*$')
+        self.ifPattern = re.compile('if\s*\((.*?)\)')
+        self.elseIfPattern = re.compile('\s*else if *\((.*?)\)')
+        self.elsePattern = re.compile('else')
         self.functionCallPattern = re.compile('\s*((\-)*[_a-zA-Z][a-zA-Z0-9_\-]*)\((.*?)\)();')
         self.booleanPattern = re.compile('\s*([a-zA-Z0-9]+)\s*(==|<=|>=|<|>|!=)\s*([a-zA-Z0-9]+)\s*')
         self.numberPattern = re.compile('[0-9]*')
@@ -41,6 +43,7 @@ class C_Reader:
         lines = scopeText.split('\n')
         text = ''
         funcName = ''
+        elseCounter = 0
         for line in lines:
             #Check if line is a function definition and is not a prototype.
             searchResult = re.search(self.functionPattern, line)
@@ -63,12 +66,30 @@ class C_Reader:
                     self.handle_for(searchResult)
                     isInScope = True
                 else:
-                    #Checks if the line is a if-else logic statement.
-                    searchResult = re.search(self.ifElsePattern, line)
+                    #Checks if the line is an if logic statement.
+                    searchResult = re.search(self.ifPattern, line)
 
-                    if searchResult != None and counter == 0:
-                        self.scopeName.append('.ifelse')
+                    if searchResult != None and counter == 0 and re.search(self.elseIfPattern, line) == None:
+                        self.scopeName.append('.if' + '(' + str(self.ifNameCounter) + ')')
+                        elseCounter = self.ifNameCounter
+                        self.ifNameCounter += 1
                         isInScope = True
+                    else:
+                        #Checks if the line is an if-else statement
+                        searchResult = re.search(self.elseIfPattern, line)
+                        
+                        if searchResult != None and counter == 0:
+                            self.scopeName.append('.ifelse' + '(' + str(elseCounter) + '-' + str(self.ifElseNameCounter) + ')')
+                            self.ifElseNameCounter += 1
+                            isInScope = True
+                            #do something with ifelse
+                        else:
+                            #Checks if the line is an else statement
+                            searchResult = re.search(self.elsePattern, line)
+                            
+                            if searchResult != None and counter == 0:
+                                self.scopeName.append('.else' + '(' + str(elseCounter) + ')')
+                                isInScope = True
             
             #Appends text that is not the start of a scope, or end of a scope, to a string.
             if isInScope == True:
@@ -203,7 +224,7 @@ class C_Reader:
         return [variableName, iterationCounter]
 
 # Debugging
-#reader = C_Reader("pthread_setting_variables.c")
+#reader = C_Reader("ifelse.c")
 #reader.get_scopes(reader.file)
 #for r in reader.result:
 #    print(r)
