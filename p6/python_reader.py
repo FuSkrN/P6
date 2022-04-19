@@ -24,7 +24,7 @@ class C_Reader:
         self.functionPattern = re.compile('^\s*(int|long|pthread_t|void) +\**(([a-zA-Z0-9]+)\(([a-zA-Z0-9]* *\*?,?)*\)).*$')
         self.forPattern = re.compile('for\s*\((.*)\).*')
         self.ifPattern = re.compile('if\s*\((.*?)\)')
-        self.elseIfPattern = re.compile('\s*else if *\((.*?)\)')
+        self.elseIfPattern = re.compile('else if *\((.*?)\)')
         self.elsePattern = re.compile('else')
         self.functionCallPattern = re.compile('\s*((\-)*[_a-zA-Z][a-zA-Z0-9_\-]*)\((.*?)\)();')
         self.booleanPattern = re.compile('\s*([a-zA-Z0-9]+)\s*(==|<=|>=|<|>|!=)\s*([a-zA-Z0-9]+)\s*')
@@ -72,14 +72,35 @@ class C_Reader:
                     if searchResult != None and counter == 0 and re.search(self.elseIfPattern, line) == None:
                         self.scopeName.append('.if' + '(' + str(self.ifNameCounter) + ')')
                         elseCounter = self.ifNameCounter
+                        scope = ''
+                        for s in self.scopeName:
+                            scope = scope + s
+                        ifStatement = {"scope": scope,
+                            "name": f"if({str(self.ifNameCounter)})",
+                            "value": searchResult.group(1),
+                            "lineCounter": lineCounter,
+                            "commandType": "ifStatement"}
+                        self.result.append(ifStatement)
+                        lineCounter += 1
                         self.ifNameCounter += 1
                         isInScope = True
+
                     else:
                         #Checks if the line is an if-else statement
                         searchResult = re.search(self.elseIfPattern, line)
                         
                         if searchResult != None and counter == 0:
                             self.scopeName.append('.ifelse' + '(' + str(elseCounter) + '-' + str(self.ifElseNameCounter) + ')')
+                            scope = ''
+                            for s in self.scopeName:
+                                scope = scope + s
+                            ifStatement = {"scope": scope,
+                                "name": f"ifElse({str(self.ifElseNameCounter)})",
+                                "value": searchResult.group(1),
+                                "lineCounter": lineCounter,
+                                "commandType": "ifElseStatement"}
+                            self.result.append(ifStatement)
+                            lineCounter += 1
                             self.ifElseNameCounter += 1
                             isInScope = True
                             #do something with ifelse
@@ -224,7 +245,7 @@ class C_Reader:
         return [variableName, iterationCounter]
 
 # Debugging
-#reader = C_Reader("ifelse.c")
-#reader.get_scopes(reader.file)
-#for r in reader.result:
-#    print(r)
+reader = C_Reader("ifelse.c")
+reader.get_scopes(reader.file)
+for r in reader.result:
+    print(r)

@@ -86,6 +86,10 @@ class graph:
         else:
             return {"type": "", "threadName": "", "thread": None}
 
+    def check_if_condition(self):
+        """Returns the boolean result of an if condition"""
+        pass
+
 
     def simulate_new_states(self, currentState):
         """Creates new states to be appended to the State array in the correct manner. 
