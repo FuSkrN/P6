@@ -109,7 +109,6 @@ class C_Reader:
                             searchResult = re.search(self.elsePattern, line)
                             
                             if searchResult != None and counter == 0:
-                                print("WDIOJAWDIJOADJO")
                                 self.scopeName.append('.else' + '(' + str(elseCounter) + ')')
                                 scope = ''
                                 for s in self.scopeName:
@@ -256,7 +255,7 @@ class C_Reader:
         return [variableName, iterationCounter]
 
 # Debugging
-reader = C_Reader("ifelse.c")
-reader.get_scopes(reader.file)
-for r in reader.result:
-    print(r)
+#reader = C_Reader("ifelse.c")
+#reader.get_scopes(reader.file)
+#for r in reader.result:
+#    print(r)
