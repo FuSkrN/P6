@@ -109,7 +109,18 @@ class C_Reader:
                             searchResult = re.search(self.elsePattern, line)
                             
                             if searchResult != None and counter == 0:
+                                print("WDIOJAWDIJOADJO")
                                 self.scopeName.append('.else' + '(' + str(elseCounter) + ')')
+                                scope = ''
+                                for s in self.scopeName:
+                                    scope = scope + s
+                                ifStatement = {"scope": scope,
+                                        "name": f"else({elseCounter})",
+                                        "value": "",
+                                        "lineCounter": lineCounter,
+                                        "commandType":"elseStatement"}
+                                self.result.append(ifStatement)
+                                lineCounter += 1
                                 isInScope = True
             
             #Appends text that is not the start of a scope, or end of a scope, to a string.
@@ -245,7 +256,7 @@ class C_Reader:
         return [variableName, iterationCounter]
 
 # Debugging
-#reader = C_Reader("ifelse.c")
-#reader.get_scopes(reader.file)
-#for r in reader.result:
-#    print(r)
+reader = C_Reader("ifelse.c")
+reader.get_scopes(reader.file)
+for r in reader.result:
+    print(r)
