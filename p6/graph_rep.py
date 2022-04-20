@@ -5,7 +5,7 @@ import copy
 
 #Class state definition.
 class state:
-    def __init__(self, label: str, symboltable: list, programCounters: list):
+    def __init__(self, label: str, symboltable: list, programCounters: list, ifList):
         #Node-label identifier.
         self.label = label
 
@@ -18,6 +18,7 @@ class state:
         #copy.deepcopy copies the entire object rather than assigning a pointer to the original one.
         self.symboltable = copy.deepcopy(symboltable)
         self.programCounters = copy.deepcopy(programCounters)
+        self.ifList = ifList.copy()
     
     def addTransition(self, state):
         """A function that adds a transition from the current state to another state."""

@@ -3,6 +3,7 @@ import python_reader
 import symboltable
 import search_replace
 import copy
+import re
 
 class graph:
     """Class to define a graph consisting of states. Input is a list of variable dictionaries"""
@@ -12,7 +13,7 @@ class graph:
         self.funcNameCounter = 0
 
         # Define starting state (s0)
-        self.startState = graph_rep.state('s0', symboltable.Symboltable(), [])
+        self.startState = graph_rep.state('s0', symboltable.Symboltable(), [], [])
         self.stateArray.append(self.startState)
 
         # Counter used to name states s1, s2, ..., sN
@@ -26,7 +27,7 @@ class graph:
         # Once a pthread_create has been found, call simulate_new_states, which will generate all subsequent states
         for var in self.variables:
             #initialize the new state. label is s + 1 and symboltable is copied from previous state
-            newState = graph_rep.state('s' + str(self.nameCounter), currentState.symboltable, currentState.programCounters)
+            newState = graph_rep.state('s' + str(self.nameCounter), currentState.symboltable, currentState.programCounters, currentState.ifList)
             self.nameCounter += 1
             if var['scope'] == 'global.main' and len(newState.programCounters) == 0:
                 thread = {"name": "main",
@@ -119,7 +120,7 @@ class graph:
 
                             #Make new state with the found variable and an increased thread counter (thread['counter'])
                             #A variable is any input type, such as declaration, assignment or a function.
-                            newState = graph_rep.state('s' + str(self.nameCounter), stateQueue[0].symboltable, stateQueue[0].programCounters)
+                            newState = graph_rep.state('s' + str(self.nameCounter), stateQueue[0].symboltable, stateQueue[0].programCounters, stateQueue[0].ifList)
                             self.nameCounter += 1
 
                             #Check whether the variable in question is a function.
@@ -145,6 +146,26 @@ class graph:
                                         varFound = True
                                         break
 
+                            elif variable['commandType'] == 'ifStatement':
+                                if self.check_if_condition(variable, newState.symboltable):
+                                    newState.ifList.append(variable['name'])
+                                else:
+                                    self.skip_if_section(newState, thread, variable)
+
+                            elif variable['commandType'] == 'ifElseStatement':
+                                previousIfExecuted = self.check_if_exists(variable, newState)
+                                if self.check_if_condition(variable, newState.symboltable) and not previousIfExecuted:
+                                    newState.ifList.append(variable['name'])
+                                else:
+                                    self.skip_if_section(newState, thread, variable)
+    
+                            elif variable['commandType'] == 'elseStatement':
+                                previousIfExecuted = self.check_if_exists(variable, newState)
+                                if not previousIfExecuted:
+                                    newState.ifList.append(variable['name'])
+                                else:
+                                    self.skip_if_section(newState, thread, variable)
+                                
                             #If the variable is not a function call, add it directly to the new state's list of variables (Symbol table).
                             else:
                                 #tempVar is used to change the scope name, to allow for multiple calls of the same function.
@@ -189,7 +210,7 @@ class graph:
                 #Once a thread finishes as no variable is read, 
                 #its corresponding state array node is created and the program counter is removed.
                 if varFound == False:
-                    newState = graph_rep.state('s' + str(self.nameCounter), stateQueue[0].symboltable, stateQueue[0].programCounters)
+                    newState = graph_rep.state('s' + str(self.nameCounter), stateQueue[0].symboltable, stateQueue[0].programCounters, stateQueue[0].ifList)
                     self.nameCounter += 1
                     newState.programCounters.pop(newState.programCounters.index(thread))
 
@@ -219,6 +240,24 @@ class graph:
                 #Add a transition from the parent of newState to the duplicate state.
                 currentState.addTransition(state)
         return stateFound
+
+    def skip_if_section(self, newState, thread, variable):
+        flag = True
+        while flag:
+            for i in range(0, len(newState.programCounters)):
+                if thread['function'] == newState.programCounters[i]['function']:
+                    newState.programCounters[i]['counter'] += 1
+                    for variableInList in self.variables:
+                        if programCounters[i]['counter'] == variableInList['lineCounter']:
+                            if variableInList['scope'] != variable['scope']:
+                                flag = False
+
+    def check_if_exists(self, variable, newState):
+        match = re.compile("(ifElse|else)(([0-9]+)(-[0-9]+)?\)")
+        searchResult = re.search(match, variable['name'])
+        ifName = f"if({searchResult.group(2)})"
+        return (ifName in newState.ifList)
+        
 
 # DEBUGGING PURPOSES - DO NOT REMOVE
 a = python_reader.C_Reader("pthread_setting_variables.c")

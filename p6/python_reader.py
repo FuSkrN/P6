@@ -88,7 +88,7 @@ class C_Reader:
                     else:
                         #Checks if the line is an if-else statement
                         searchResult = re.search(self.elseIfPattern, line)
-                        
+
                         if searchResult != None and counter == 0:
                             self.scopeName.append('.ifelse' + '(' + str(elseCounter) + '-' + str(self.ifElseNameCounter) + ')')
                             scope = ''
