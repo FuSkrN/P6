@@ -21,10 +21,11 @@ class graph:
         currentState = self.startState
         
         foundFirstThread = False
+        foundMain = False
 
         # For each tuple in the list of dictionaries
         # Create a new state, append the counter
-        # Once a pthread_create has been found, call simulate_new_states, which will generate all subsequent states
+        # Once main has been found, call simulate_new_states, which will generate all subsequent states
         for var in self.variables:
             #initialize the new state. label is s + 1 and symboltable is copied from previous state
             newState = graph_rep.state('s' + str(self.nameCounter), currentState.symboltable, currentState.programCounters, currentState.ifList)
@@ -34,24 +35,17 @@ class graph:
                         "function": "main",
                         "counter": 0}
                 newState.programCounters.append(thread)
-            # Check if the variable is a call to pthread_create, and prepares to call simulate_new_states if it is found
-            if var['commandType'] == "functionCall":
-                pthreadReturn = self.find_pthread(var)
-                if pthreadReturn['type'] == "create":
-                    pthread = pthreadReturn['thread']
-                    # Appends the thread to programCounters of the new state
-                    newState.programCounters.append(pthread)
-                    foundFirstThread = True
+                foundMain = True
 
-            else:
+            elif foundMain == False:
                 # Append the new variables of the current state to a new state
                 newState.addVar(var)
             
             # Increments the programCounter by one, to represent that the next statement in the program has been executed
-            i = 0
-            for i in range(0, len(newState.programCounters)):
-                if thread['function'] == newState.programCounters[i]['function']:
-                    newState.programCounters[i]['counter'] += 1
+                i = 0
+                for i in range(0, len(newState.programCounters)):
+                    if thread['function'] == newState.programCounters[i]['function']:
+                        newState.programCounters[i]['counter'] += 1
 
             # Add a transition to the new state from current state
             currentState.addTransition(newState)
@@ -61,7 +55,7 @@ class graph:
             self.stateArray.append(currentState)
 
             # If pthread_create was found, break out of the for each loop and run simulate_new_states
-            if foundFirstThread == True:
+            if foundMain == True:
                 break
 
         #do something once the first pthread_create has been found
