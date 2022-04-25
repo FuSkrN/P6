@@ -12,7 +12,7 @@ def start(args):
         print("-ra\tPerforms all reductions")
     else:
         reader = python_reader.C_Reader(args[1])
-        reader.get_scopes(reader.file)
+        reader.get_scopes(reader.file, 0)
         graph = generator.graph(reader.result)
         red = reducer.reducer(graph.stateArray)
         

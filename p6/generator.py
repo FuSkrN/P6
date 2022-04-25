@@ -42,10 +42,10 @@ class graph:
                 newState.addVar(var)
             
             # Increments the programCounter by one, to represent that the next statement in the program has been executed
-                i = 0
-                for i in range(0, len(newState.programCounters)):
-                    if thread['function'] == newState.programCounters[i]['function']:
-                        newState.programCounters[i]['counter'] += 1
+            i = 0
+            for i in range(0, len(newState.programCounters)):
+                if thread['function'] == newState.programCounters[i]['function']:
+                    newState.programCounters[i]['counter'] += 1
 
             # Add a transition to the new state from current state
             currentState.addTransition(newState)
@@ -108,6 +108,7 @@ class graph:
                     splitScopeName = variable['scope'].split(".")
                     #Identify whether a thread function is equivalent to the current scope. If true, then it is within the same scope.
                     if thread['function'].split("(")[0] == splitScopeName[-1]:
+                    #if self.check_if_in_scope(thread, splitScopeName):
 
                         #If the function is a match, check whether their line counters are equivalent (correct line).
                         if thread['counter'] == variable['lineCounter']:
@@ -234,6 +235,14 @@ class graph:
                             if variableInList['scope'] != variable['scope']:
                                 flag = False
 
+    def check_if_in_scope(self, thread, splitScopeName):
+        funcName = thread['function'].split("(")
+        for scope in splitScopeName:
+            print(funcName, scope)
+            if scope == funcName[0]:
+                return True
+        return False
+
     def check_if_exists(self, variable, newState):
         match = re.compile("(ifElse|else)(([0-9]+)(-[0-9]+)?\)")
         searchResult = re.search(match, variable['name'])
@@ -258,7 +267,7 @@ class graph:
         
 
 # DEBUGGING PURPOSES - DO NOT REMOVE
-a = python_reader.C_Reader("pthread_setting_variables.c")
+#a = python_reader.C_Reader("pthread_setting_variables.c")
 
 #a.get_scopes(a.file)
 #b = graph(a.result)

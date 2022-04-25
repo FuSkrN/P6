@@ -44,13 +44,13 @@ class C_Reader:
         text = ''
         funcName = ''
         elseCounter = 0
+        shouldPop = False
         for line in lines:
             #Check if line is a function definition and is not a prototype.
             searchResult = re.search(self.functionPattern, line)
 
             #If the function search result is not empty (no function) and there is no prototype available (along with 0 recursion).
             if searchResult != None and re.search(self.prototypePattern, line) == None and counter == 0:
-
                 #A new scope is found, so append it to the scopeName (function name).
                 self.scopeName.append('.' + searchResult.group(3))
                 isInScope = True
@@ -103,7 +103,7 @@ class C_Reader:
                             lineCounter += 1
                             self.ifElseNameCounter += 1
                             isInScope = True
-                            #do something with ifelse
+
                         else:
                             #Checks if the line is an else statement
                             searchResult = re.search(self.elsePattern, line)
@@ -124,7 +124,7 @@ class C_Reader:
             
             #Appends text that is not the start of a scope, or end of a scope, to a string.
             if isInScope == True:
-                text = self.get_scope_body(line, counter, text)
+                text, counter = self.get_scope_body(line, counter, text)
 
                 #Checks if the scope has ended, and if so, makes a recursive call to itself, with the internal text as input.
                 #Enters a new scope level upon recursive call.
@@ -132,7 +132,6 @@ class C_Reader:
                     isInScope = False
                     self.get_scopes(text)
                     text = ""
-
                 #Gets the variables from a line and appends it to the result list.
                 a = self.get_variables(line, self.scopeName, lineCounter)
                 if a != None and counter == 0:
@@ -151,6 +150,7 @@ class C_Reader:
 
         #Pops the latest scopename out of the scopeName list.
         #A new recursive call is then made to the previous scope level.
+        print(isInScope)
         self.scopeName.pop(-1)
 
     def get_variables(self, line, scopeArr, lineCounter):
@@ -211,6 +211,7 @@ class C_Reader:
                         "commandType": "declaration"}
         else:
             return None
+
     def handle_for(self, forParam):
         splitResult = forParam.group(1).split(';')
         variableName = ''
@@ -256,10 +257,10 @@ class C_Reader:
 
                 elif counter != 0:
                     text = text + symbol
-        return text
+        return text, counter
 
 # Debugging
-#reader = C_Reader("ifelse.c")
-#reader.get_scopes(reader.file)
-#for r in reader.result:
-#    print(r)
+reader = C_Reader("ifelse.c")
+reader.get_scopes(reader.file)
+for r in reader.result:
+    print(r)
