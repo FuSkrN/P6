@@ -124,19 +124,7 @@ class C_Reader:
             
             #Appends text that is not the start of a scope, or end of a scope, to a string.
             if isInScope == True:
-                for symbol in line:
-                    if symbol == '{':
-                        if counter != 0:
-                            text = text + symbol
-                        counter += 1
-
-                    elif symbol == '}':
-                        counter -= 1
-                        if counter != 0:
-                            text = text + symbol
-
-                    elif counter != 0:
-                        text = text + symbol
+                text = self.get_scope_body(line, counter, text)
 
                 #Checks if the scope has ended, and if so, makes a recursive call to itself, with the internal text as input.
                 #Enters a new scope level upon recursive call.
@@ -253,6 +241,22 @@ class C_Reader:
                 iterationCounter = booleanDelta/int(numberResult.group())
 
         return [variableName, iterationCounter]
+
+    def get_scope_body(self, line, counter, text):
+        for symbol in line:
+            if symbol == '{':
+                if counter != 0:
+                    text = text + symbol
+                    counter += 1
+
+                elif symbol == '}':
+                    counter -= 1
+                    if counter != 0:
+                        text = text + symbol
+
+                elif counter != 0:
+                    text = text + symbol
+        return text
 
 # Debugging
 #reader = C_Reader("ifelse.c")

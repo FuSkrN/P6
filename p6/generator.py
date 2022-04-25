@@ -162,19 +162,7 @@ class graph:
                                 
                             #If the variable is not a function call, add it directly to the new state's list of variables (Symbol table).
                             else:
-                                #tempVar is used to change the scope name, to allow for multiple calls of the same function.
-                                tempVar = variable.copy()
-                                tempVarScopeSplit = tempVar['scope'].split(".")
-                                tempVarScopeSplit.pop()
-                                tempVarScopeSplit.append(thread['function'])
-                                tempVarScope = tempVarScopeSplit[0]
-
-                                for scope in tempVarScopeSplit:
-                                    if scope != 'global':
-                                        tempVarScope = tempVarScope + '.' + scope
-                                tempVar['scope'] = tempVarScope
-
-                                newState.addVar(tempVar)
+                                self.add_variable_to_newState(variable, thread, newState)
 
                             #Loop through the programCounters list for a state and check if the current variable has been executed.
                             #Once done, increment the corresponding thread's program counter.
@@ -251,6 +239,22 @@ class graph:
         searchResult = re.search(match, variable['name'])
         ifName = f"if({searchResult.group(2)})"
         return (ifName in newState.ifList)
+
+    def add_variable_to_newState(self, variable, thread, newState):
+        #tempVar is used to change the scope name, to allow for multiple calls of the same function.
+        tempVar = variable.copy()
+        tempVarScopeSplit = tempVar['scope'].split(".")
+        tempVarScopeSplit.pop()
+        tempVarScopeSplit.append(thread['function'])
+        tempVarScope = tempVarScopeSplit[0]
+
+        #add the scope to the variable dictionary
+        for scope in tempVarScopeSplit:
+            if scope != 'global':
+                tempVarScope = tempVarScope + '.' + scope
+            tempVar['scope'] = tempVarScope
+
+        newState.addVar(tempVar)
         
 
 # DEBUGGING PURPOSES - DO NOT REMOVE
