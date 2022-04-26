@@ -33,7 +33,7 @@ class C_Reader:
     def get_scopes(self, scopeText):
         """A function that extracts the contents of a scope. 
         A recursive call is then made in order to continually find scopes."""
-        
+
         #Keep track of line counters and scope recursion levels.
         lineCounter = 0
         counter = 0
@@ -45,6 +45,7 @@ class C_Reader:
         funcName = ''
         elseCounter = 0
         shouldPop = False
+        print(scopeText)
         for line in lines:
             #Check if line is a function definition and is not a prototype.
             searchResult = re.search(self.functionPattern, line)
@@ -125,7 +126,7 @@ class C_Reader:
             #Appends text that is not the start of a scope, or end of a scope, to a string.
             if isInScope == True:
                 text, counter = self.get_scope_body(line, counter, text)
-
+                print(text, counter)
                 #Checks if the scope has ended, and if so, makes a recursive call to itself, with the internal text as input.
                 #Enters a new scope level upon recursive call.
                 if counter == 0:
@@ -150,8 +151,9 @@ class C_Reader:
 
         #Pops the latest scopename out of the scopeName list.
         #A new recursive call is then made to the previous scope level.
-        print(isInScope)
+        print(f"popping scope: {self.scopeName[-1]}")
         self.scopeName.pop(-1)
+        #return parentLineCounter
 
     def get_variables(self, line, scopeArr, lineCounter):
         """Gets the variables from reading input"""
@@ -244,23 +246,29 @@ class C_Reader:
         return [variableName, iterationCounter]
 
     def get_scope_body(self, line, counter, text):
+        print(text, line, counter)
         for symbol in line:
+            print("1",counter)
             if symbol == '{':
+                print("WIDAOWJDIOAD")
+                if counter != 0:
+                    print("hello?")
+                    text = text + symbol
+                counter += 1
+                print("2",counter)
+
+            elif symbol == '}':
+                print("WDAPDWOAPD")
+                counter -= 1
                 if counter != 0:
                     text = text + symbol
-                    counter += 1
 
-                elif symbol == '}':
-                    counter -= 1
-                    if counter != 0:
-                        text = text + symbol
-
-                elif counter != 0:
-                    text = text + symbol
+            elif counter != 0:
+                text = text + symbol
         return text, counter
 
 # Debugging
-reader = C_Reader("ifelse.c")
+reader = C_Reader("pthread_setting_variables.c")
 reader.get_scopes(reader.file)
 for r in reader.result:
     print(r)
