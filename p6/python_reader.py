@@ -8,6 +8,7 @@ class C_Reader:
         self.forNameCounter = 0
         self.ifNameCounter = 0
         self.ifElseNameCounter = 0
+        self.lineCounter = 0
 
         #Opens a filepath and reads its contents line by line, split by newline characters.
         with open(self.fileName) as file:
@@ -33,9 +34,8 @@ class C_Reader:
     def get_scopes(self, scopeText):
         """A function that extracts the contents of a scope. 
         A recursive call is then made in order to continually find scopes."""
-
         #Keep track of line counters and scope recursion levels.
-        lineCounter = 0
+        ##lineCounter = 0
         counter = 0
 
         #Flag indicating whether a scope is active or not.
@@ -45,7 +45,6 @@ class C_Reader:
         funcName = ''
         elseCounter = 0
         shouldPop = False
-        print(scopeText)
         for line in lines:
             #Check if line is a function definition and is not a prototype.
             searchResult = re.search(self.functionPattern, line)
@@ -56,6 +55,7 @@ class C_Reader:
                 self.scopeName.append('.' + searchResult.group(3))
                 isInScope = True
                 funcName = searchResult.group(3)
+                self.lineCounter = 0
 
             else:
                 #Checks if the line is a for loop.
@@ -79,10 +79,10 @@ class C_Reader:
                         ifStatement = {"scope": scope,
                             "name": f"if({str(self.ifNameCounter)})",
                             "value": searchResult.group(1),
-                            "lineCounter": lineCounter,
+                            "lineCounter": self.lineCounter,
                             "commandType": "ifStatement"}
                         self.result.append(ifStatement)
-                        lineCounter += 1
+                        self.lineCounter += 1
                         self.ifNameCounter += 1
                         isInScope = True
 
@@ -98,10 +98,10 @@ class C_Reader:
                             ifStatement = {"scope": scope,
                                 "name": f"ifElse({str(self.ifElseNameCounter)})",
                                 "value": searchResult.group(1),
-                                "lineCounter": lineCounter,
+                                "lineCounter": self.lineCounter,
                                 "commandType": "ifElseStatement"}
                             self.result.append(ifStatement)
-                            lineCounter += 1
+                            self.lineCounter += 1
                             self.ifElseNameCounter += 1
                             isInScope = True
 
@@ -117,16 +117,15 @@ class C_Reader:
                                 ifStatement = {"scope": scope,
                                         "name": f"else({elseCounter})",
                                         "value": "",
-                                        "lineCounter": lineCounter,
+                                        "lineCounter": self.lineCounter,
                                         "commandType":"elseStatement"}
                                 self.result.append(ifStatement)
-                                lineCounter += 1
+                                self.lineCounter += 1
                                 isInScope = True
             
             #Appends text that is not the start of a scope, or end of a scope, to a string.
             if isInScope == True:
                 text, counter = self.get_scope_body(line, counter, text)
-                print(text, counter)
                 #Checks if the scope has ended, and if so, makes a recursive call to itself, with the internal text as input.
                 #Enters a new scope level upon recursive call.
                 if counter == 0:
@@ -134,26 +133,24 @@ class C_Reader:
                     self.get_scopes(text)
                     text = ""
                 #Gets the variables from a line and appends it to the result list.
-                a = self.get_variables(line, self.scopeName, lineCounter)
+                a = self.get_variables(line, self.scopeName, self.lineCounter)
                 if a != None and counter == 0:
                     self.result.append(a)
-                    lineCounter += 1
+                    self.lineCounter += 1
 
                 #Ends each line with a newline for the next iteration of recursion, as each line is separated as such.
                 text = text + '\n'
            
             #Checks for variables within the global scope (when there's only one element in the scopeName list)
             elif counter == 0:
-                a = self.get_variables(line, self.scopeName, lineCounter)
+                a = self.get_variables(line, self.scopeName, self.lineCounter)
                 if a != None:
                     self.result.append(a)
-                    lineCounter += 1
+                    self.lineCounter += 1
 
         #Pops the latest scopename out of the scopeName list.
         #A new recursive call is then made to the previous scope level.
-        print(f"popping scope: {self.scopeName[-1]}")
         self.scopeName.pop(-1)
-        #return parentLineCounter
 
     def get_variables(self, line, scopeArr, lineCounter):
         """Gets the variables from reading input"""
@@ -246,19 +243,13 @@ class C_Reader:
         return [variableName, iterationCounter]
 
     def get_scope_body(self, line, counter, text):
-        print(text, line, counter)
         for symbol in line:
-            print("1",counter)
             if symbol == '{':
-                print("WIDAOWJDIOAD")
                 if counter != 0:
-                    print("hello?")
                     text = text + symbol
                 counter += 1
-                print("2",counter)
 
             elif symbol == '}':
-                print("WDAPDWOAPD")
                 counter -= 1
                 if counter != 0:
                     text = text + symbol
@@ -268,7 +259,7 @@ class C_Reader:
         return text, counter
 
 # Debugging
-reader = C_Reader("pthread_setting_variables.c")
-reader.get_scopes(reader.file)
-for r in reader.result:
-    print(r)
+#reader = C_Reader("pthread_setting_variables.c")
+#reader.get_scopes(reader.file)
+#for r in reader.result:
+#    print(r)

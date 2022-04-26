@@ -12,10 +12,13 @@ def start(args):
         print("-ra\tPerforms all reductions")
     else:
         reader = python_reader.C_Reader(args[1])
-        reader.get_scopes(reader.file, 0)
+        reader.get_scopes(reader.file)
         graph = generator.graph(reader.result)
         red = reducer.reducer(graph.stateArray)
         
+        for r in reader.result:
+            print(r)
+
         if len(args) == 3:
             outputName = args[1] + "." + args[2] + ".graph.txt"
             if args[2] == "-ra" or args[2] == "-r1":

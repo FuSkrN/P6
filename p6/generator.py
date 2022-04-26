@@ -41,12 +41,6 @@ class graph:
                 # Append the new variables of the current state to a new state
                 newState.addVar(var)
             
-            # Increments the programCounter by one, to represent that the next statement in the program has been executed
-            i = 0
-            for i in range(0, len(newState.programCounters)):
-                if thread['function'] == newState.programCounters[i]['function']:
-                    newState.programCounters[i]['counter'] += 1
-
             # Add a transition to the new state from current state
             currentState.addTransition(newState)
 
@@ -82,7 +76,7 @@ class graph:
         else:
             return {"type": "", "threadName": "", "thread": None}
 
-    def check_if_condition(self, condontionalDictionary, symboltable):
+    def check_if_condition(self, conditionalDictionary, symboltable):
         """Returns the evaluated conditional statement"""
         conditionalDictionary = search_replace.replace_vars_without_update(conditionalDictionary, symboltable)
         return search_replace.evaluateExpression(conditionalDictionary['value'])
@@ -93,7 +87,6 @@ class graph:
         Takes an input state node to be added to the state array graph. Outputs (not returns) an updated state array graph."""
         stateQueue = [currentState]
         while len(stateQueue) != 0:
-            print(stateQueue[0].label)
             #For each programcounter in currentState, simulate the next child states.
             for thread in stateQueue[0].programCounters:
 
@@ -107,8 +100,8 @@ class graph:
                 for variable in self.variables:
                     splitScopeName = variable['scope'].split(".")
                     #Identify whether a thread function is equivalent to the current scope. If true, then it is within the same scope.
-                    if thread['function'].split("(")[0] == splitScopeName[-1]:
-                    #if self.check_if_in_scope(thread, splitScopeName):
+                    #if thread['function'].split("(")[0] == splitScopeName[-1]:
+                    if self.check_if_in_scope(thread, splitScopeName):
 
                         #If the function is a match, check whether their line counters are equivalent (correct line).
                         if thread['counter'] == variable['lineCounter']:
@@ -142,14 +135,17 @@ class graph:
                                         break
 
                             elif variable['commandType'] == 'ifStatement':
-                                if self.check_if_condition(variable, newState.symboltable):
+                                print("if", self.check_if_condition(variable, newState.symboltable))
+                                if self.check_if_condition(variable, newState.symboltable) == True:
+                                    print("!!!!!!")
                                     newState.ifList.append(variable['name'])
                                 else:
                                     self.skip_if_section(newState, thread, variable)
 
                             elif variable['commandType'] == 'ifElseStatement':
+                                print("ifelse",self.check_if_condition(variable, newState.symboltable))
                                 previousIfExecuted = self.check_if_exists(variable, newState)
-                                if self.check_if_condition(variable, newState.symboltable) and not previousIfExecuted:
+                                if self.check_if_condition(variable, newState.symboltable) == True and not previousIfExecuted:
                                     newState.ifList.append(variable['name'])
                                 else:
                                     self.skip_if_section(newState, thread, variable)
@@ -229,22 +225,21 @@ class graph:
         while flag:
             for i in range(0, len(newState.programCounters)):
                 if thread['function'] == newState.programCounters[i]['function']:
-                    newState.programCounters[i]['counter'] += 1
                     for variableInList in self.variables:
-                        if programCounters[i]['counter'] == variableInList['lineCounter']:
+                        if newState.programCounters[i]['counter'] == variableInList['lineCounter']:
                             if variableInList['scope'] != variable['scope']:
                                 flag = False
+                    newState.programCounters[i]['counter'] += 1
 
     def check_if_in_scope(self, thread, splitScopeName):
         funcName = thread['function'].split("(")
         for scope in splitScopeName:
-            print(funcName, scope)
             if scope == funcName[0]:
                 return True
         return False
 
     def check_if_exists(self, variable, newState):
-        match = re.compile("(ifElse|else)(([0-9]+)(-[0-9]+)?\)")
+        match = re.compile("(ifElse|else)\(([0-9]+)(-[0-9]+)?\)")
         searchResult = re.search(match, variable['name'])
         ifName = f"if({searchResult.group(2)})"
         return (ifName in newState.ifList)
