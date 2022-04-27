@@ -91,7 +91,7 @@ class C_Reader:
                         searchResult = re.search(self.elseIfPattern, line)
 
                         if searchResult != None and counter == 0:
-                            self.scopeName.append('.ifelse' + '(' + str(elseCounter) + '-' + str(self.ifElseNameCounter) + ')')
+                            self.scopeName.append('.ifElse' + '(' + str(elseCounter) + '-' + str(self.ifElseNameCounter) + ')')
                             scope = ''
                             for s in self.scopeName:
                                 scope = scope + s

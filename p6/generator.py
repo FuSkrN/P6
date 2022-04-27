@@ -79,7 +79,11 @@ class graph:
     def check_if_condition(self, conditionalDictionary, symboltable):
         """Returns the evaluated conditional statement"""
         conditionalDictionary = search_replace.replace_vars_without_update(conditionalDictionary, symboltable)
-        return search_replace.evaluateExpression(conditionalDictionary['value'])
+        result = search_replace.evaluateExpression(conditionalDictionary['value'])
+        if result == "True":
+            return True
+        else:
+            return False
 
     def simulate_new_states(self, currentState):
         """Creates new states to be appended to the State array in the correct manner. 
@@ -101,7 +105,7 @@ class graph:
                     splitScopeName = variable['scope'].split(".")
                     #Identify whether a thread function is equivalent to the current scope. If true, then it is within the same scope.
                     #if thread['function'].split("(")[0] == splitScopeName[-1]:
-                    if self.check_if_in_scope(thread, splitScopeName):
+                    if self.check_if_in_scope(thread, variable):
 
                         #If the function is a match, check whether their line counters are equivalent (correct line).
                         if thread['counter'] == variable['lineCounter']:
@@ -135,28 +139,26 @@ class graph:
                                         break
 
                             elif variable['commandType'] == 'ifStatement':
-                                print("if", self.check_if_condition(variable, newState.symboltable))
-                                if self.check_if_condition(variable, newState.symboltable) == True:
-                                    print("!!!!!!")
-                                    newState.ifList.append(variable['name'])
+                                if self.check_if_condition(variable, newState.symboltable) == True and self.check_if_parents_exist(newState, variable):
+                                    self.add_if_to_ifList(newState, variable)
+                                    print(f"added {variable} to list")
                                 else:
                                     self.skip_if_section(newState, thread, variable)
 
                             elif variable['commandType'] == 'ifElseStatement':
-                                print("ifelse",self.check_if_condition(variable, newState.symboltable))
                                 previousIfExecuted = self.check_if_exists(variable, newState)
-                                if self.check_if_condition(variable, newState.symboltable) == True and not previousIfExecuted:
-                                    newState.ifList.append(variable['name'])
+                                if self.check_if_condition(variable, newState.symboltable) == True and previousIfExecuted == False and self.check_if_parents_exist(newState, variable):
+                                    self.add_if_to_ifList(newState, variable)
+                                    print(f"added {variable} to list")
                                 else:
                                     self.skip_if_section(newState, thread, variable)
     
                             elif variable['commandType'] == 'elseStatement':
                                 previousIfExecuted = self.check_if_exists(variable, newState)
-                                if not previousIfExecuted:
+                                if previousIfExecuted == False and self.check_if_parents_exist(newState, variable):
                                     newState.ifList.append(variable['name'])
                                 else:
                                     self.skip_if_section(newState, thread, variable)
-                                
                             #If the variable is not a function call, add it directly to the new state's list of variables (Symbol table).
                             else:
                                 self.add_variable_to_newState(variable, thread, newState)
@@ -222,25 +224,85 @@ class graph:
 
     def skip_if_section(self, newState, thread, variable):
         flag = True
+
         while flag:
             for i in range(0, len(newState.programCounters)):
                 if thread['function'] == newState.programCounters[i]['function']:
                     for variableInList in self.variables:
                         if newState.programCounters[i]['counter'] == variableInList['lineCounter']:
-                            if variableInList['scope'] != variable['scope']:
+                            #print(newState.programCounters[i]['counter'])
+                            if self.find_root_if(variableInList['scope'], variable['scope']) == False:
                                 flag = False
-                    newState.programCounters[i]['counter'] += 1
+                    if newState.programCounters[i]['counter'] >= len(self.variables):
+                        flag = False
 
-    def check_if_in_scope(self, thread, splitScopeName):
+                    if flag == True:
+                        newState.programCounters[i]['counter'] += 1
+                    elif flag == False:
+                        newState.programCounters[i]['counter'] -= 1
+
+    def check_if_in_scope(self, thread, variable):
+        splitScopeName = variable['scope'].split(".")
         funcName = thread['function'].split("(")
         for scope in splitScopeName:
             if scope == funcName[0]:
                 return True
         return False
 
+    def check_if_parents_exist(self, newState, variable):
+        match = re.compile("(if)\(([0-9]+)(-[0-9]+)?\)")
+        splitScope = variable['scope'].split(".")
+        splitScope.reverse()
+        for i in range(len(splitScope)):
+            #ifFound = False
+            print("A")
+            if i != 0 and re.search(match, splitScope[i]) != None:
+                print("?")
+                ifFound = False
+                for element in newState.ifList:
+                    print("!")
+                    if element == splitScope[i]:
+                        print(f"checking if {element} was found with {variable}")
+                        ifFound = True
+                if ifFound == False:
+                    return False
+            #if ifFound == False:
+            #    return False
+        return True
+                    
+
+        newState.ifList
+
+    def find_root_if(self, firstScope, secondScope):
+        splitFirstScope = firstScope.split(".")
+        splitSecondScope = secondScope.split(".")
+        counter = 0
+        if len(splitFirstScope) != len(splitSecondScope):
+            return False
+ #       splitFirstScope.reverse()
+#        splitSecondScope.reverse()
+        match = re.compile("(if|ifElse|else)\(([0-9]+)(-[0-9]+)?\)")
+        for i in range(len(splitFirstScope)):
+            for j in range(len(splitSecondScope)):
+                if splitFirstScope[i] == splitSecondScope[j]:
+                    counter += 1
+
+  #      for i in splitFirstScope:
+   #         for j in splitSecondScope:
+    #            if i != j and re.search(match, i) != None:
+     #               return False
+        return counter == len(splitFirstScope)
+
+    def add_if_to_ifList(self, newState, variable):
+        match = re.compile("(if|ifElse)\(([0-9]+)(-[0-9]+)?\)")
+        searchResult = re.search(match, variable['scope'].split(".")[-1])
+        ifName = f"if({searchResult.group(2)})"
+        print(f"added {ifName} to list")
+        newState.ifList.append(ifName)
+
     def check_if_exists(self, variable, newState):
         match = re.compile("(ifElse|else)\(([0-9]+)(-[0-9]+)?\)")
-        searchResult = re.search(match, variable['name'])
+        searchResult = re.search(match, variable['scope'].split(".")[-1])
         ifName = f"if({searchResult.group(2)})"
         return (ifName in newState.ifList)
 
