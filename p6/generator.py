@@ -141,7 +141,6 @@ class graph:
                             elif variable['commandType'] == 'ifStatement':
                                 if self.check_if_condition(variable, newState.symboltable) == True and self.check_if_parents_exist(newState, variable):
                                     self.add_if_to_ifList(newState, variable)
-                                    print(f"added {variable} to list")
                                 else:
                                     self.skip_if_section(newState, thread, variable)
 
@@ -149,7 +148,6 @@ class graph:
                                 previousIfExecuted = self.check_if_exists(variable, newState)
                                 if self.check_if_condition(variable, newState.symboltable) == True and previousIfExecuted == False and self.check_if_parents_exist(newState, variable):
                                     self.add_if_to_ifList(newState, variable)
-                                    print(f"added {variable} to list")
                                 else:
                                     self.skip_if_section(newState, thread, variable)
     
@@ -230,7 +228,6 @@ class graph:
                 if thread['function'] == newState.programCounters[i]['function']:
                     for variableInList in self.variables:
                         if newState.programCounters[i]['counter'] == variableInList['lineCounter']:
-                            #print(newState.programCounters[i]['counter'])
                             if self.find_root_if(variableInList['scope'], variable['scope']) == False:
                                 flag = False
                     if newState.programCounters[i]['counter'] >= len(self.variables):
@@ -254,20 +251,13 @@ class graph:
         splitScope = variable['scope'].split(".")
         splitScope.reverse()
         for i in range(len(splitScope)):
-            #ifFound = False
-            print("A")
             if i != 0 and re.search(match, splitScope[i]) != None:
-                print("?")
                 ifFound = False
                 for element in newState.ifList:
-                    print("!")
                     if element == splitScope[i]:
-                        print(f"checking if {element} was found with {variable}")
                         ifFound = True
                 if ifFound == False:
                     return False
-            #if ifFound == False:
-            #    return False
         return True
                     
 
@@ -279,25 +269,18 @@ class graph:
         counter = 0
         if len(splitFirstScope) != len(splitSecondScope):
             return False
- #       splitFirstScope.reverse()
-#        splitSecondScope.reverse()
         match = re.compile("(if|ifElse|else)\(([0-9]+)(-[0-9]+)?\)")
         for i in range(len(splitFirstScope)):
             for j in range(len(splitSecondScope)):
                 if splitFirstScope[i] == splitSecondScope[j]:
                     counter += 1
 
-  #      for i in splitFirstScope:
-   #         for j in splitSecondScope:
-    #            if i != j and re.search(match, i) != None:
-     #               return False
         return counter == len(splitFirstScope)
 
     def add_if_to_ifList(self, newState, variable):
         match = re.compile("(if|ifElse)\(([0-9]+)(-[0-9]+)?\)")
         searchResult = re.search(match, variable['scope'].split(".")[-1])
         ifName = f"if({searchResult.group(2)})"
-        print(f"added {ifName} to list")
         newState.ifList.append(ifName)
 
     def check_if_exists(self, variable, newState):

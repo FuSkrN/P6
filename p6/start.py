@@ -16,9 +16,6 @@ def start(args):
         graph = generator.graph(reader.result)
         red = reducer.reducer(graph.stateArray)
         
-        for r in reader.result:
-            print(r)
-
         if len(args) == 3:
             outputName = args[1] + "." + args[2] + ".graph.txt"
             if args[2] == "-ra" or args[2] == "-r1":
