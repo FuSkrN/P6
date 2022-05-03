@@ -10,11 +10,11 @@ void *setY();
 
 int main(){
     pthread_t thread1;
-	pthread_t thread2;
+    pthread_t thread2;
     int arg1[] = {1, 1000000};
     int arg2[] = {1000001, 2000000};
     int iret1;
-	int iret2;
+    int iret2;
 
     pthread_create(&thread1, NULL, setX, (void*) arg1);
     pthread_create(&thread2, NULL, setY, (void*) arg2);
@@ -22,7 +22,7 @@ int main(){
     pthread_join(thread1, NULL);
     pthread_join(thread2, NULL);
 
-	printf("%d\n", x);
+    printf("%d\n", x);
     printf("%d\n", y);
 
 	return 0;
