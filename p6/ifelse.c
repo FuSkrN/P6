@@ -10,7 +10,7 @@ int main(){
 		if(c < b){
 			b = c;
 		}
-		else if (c = b){
+		else if (c == b){
 			c = d;
 		}
 		else{
