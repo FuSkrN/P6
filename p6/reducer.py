@@ -13,7 +13,7 @@ class reducer:
         while len(stateQueue) != 0:
 
             #resultFlag is a flag indicating whether a state in the stateQueue is able to be reduced in first-order.
-            resultFlag = stateQueue[0].link_ingoing_outgoing()
+            resultFlag = stateQueue[0].link_ingoing_outgoing_one_to_one()
             
             # If True, remove the reduced state from the state array.
             if resultFlag:
@@ -32,14 +32,15 @@ class reducer:
                     parentGlobalVars = parentState.symboltable.find_global_vars()
                     childGlobalVars = childState.symboltable.find_global_vars()
                     if parentGlobalVars == childGlobalVars:
-                        resultFlag = childState.link_ingoing_outgoing()
+                        resultFlag = childState.link_ingoing_outgoing_one_to_many()
 
             # If True, remove the reduced state from the state array.
             if resultFlag:
                 self.stateArray.pop(self.stateArray.index(stateQueue[0]))
             
             #Remove the state from the state queue.
-            stateQueue.pop(0)       
+            stateQueue.pop(0)
+
 
 # Read and parse a C file, and then generate its resulting state array graph.
 #a = python_reader.C_Reader('pthread_setting_variables.c')

@@ -72,7 +72,7 @@ class state:
         #Return the combined result (True, True) returns True.
         return eqSymboltable and eqProgramCounters
 
-    def link_ingoing_outgoing(self):
+    def link_ingoing_outgoing_one_to_one(self):
         """First-order graph reduction. 
         If a sequence of nodes X, Y and Z are connected, and X and Z are Y's only parent and child state, respectively, Y is omitted."""
         
@@ -98,7 +98,10 @@ class state:
                     outgoingState.ingoing.pop(outgoingState.ingoing.index(state))
             
             return True
-        if len(self.ingoing) == 1 and len(self.outgoing) > 0:
+        return False
+
+    def link_ingoing_outgoing_one_to_many(self):
+        if len(self.ingoing) == 1 and len(self.outgoing) > 1:
             #same variant as above, however instead of 1 outgoing state there is multiple states to append. Loop over the outgoing states of the current state and append the states to the ingoing
             for state in self.outgoing:
                 self.ingoing[0].addTransition(state)
@@ -114,8 +117,7 @@ class state:
                 for state in outgoingState.ingoing:
                     if state == self:
                         outgoingState.ingoing.pop(outgoingState.ingoing.index(state))
-            
-            
+            return True                    
         return False
 
 #The transition class used to represent edges in the graph.
