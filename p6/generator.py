@@ -91,6 +91,7 @@ class graph:
         Takes an input state node to be added to the state array graph. Outputs (not returns) an updated state array graph."""
         stateQueue = [currentState]
         while len(stateQueue) != 0:
+            print(f"working on state {stateQueue[0].label}")
             #For each programcounter in currentState, simulate the next child states.
             for thread in stateQueue[0].programCounters:
 

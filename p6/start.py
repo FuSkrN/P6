@@ -27,6 +27,7 @@ def start(args):
                 red.reduce_local_varsplit()
                 print(f"Resulting size is {len(graph.stateArray)}")
         else:
+            print(f"amount of states: {len(graph.stateArray)}")
             outputName = args[1] + ".graph.txt"
 
         with open(outputName, "a") as fileWriter:
